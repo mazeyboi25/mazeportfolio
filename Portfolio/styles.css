@@ -1525,3 +1525,43 @@ html::-webkit-scrollbar,
 body::-webkit-scrollbar {
   display: none; /* Chrome, Edge, Safari */
 }
+
+.email-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+
+  margin-top: 28px;
+  padding: 14px 20px;
+
+  border: 1px solid rgba(10, 10, 20, 0.35);
+  border-radius: 4px;
+
+  background: transparent;
+  color: #0b0b14;
+
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+
+  transition:
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.email-button span {
+  transition: transform 0.25s ease;
+}
+
+.email-button:hover {
+  background: #0b0b14;
+  color: #ffffff;
+  border-color: #0b0b14;
+  transform: translateY(-2px);
+}
+
+.email-button:hover span {
+  transform: translate(3px, -3px);
+}
