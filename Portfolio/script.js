@@ -1,20 +1,47 @@
-/*
-  KYLE — Sequence-driven portfolio motion system
-  ------------------------------------------------
-  Motion stack:
-  1) Loader sequence
-  2) Hero entrance timeline
-  3) Lenis + ScrollTrigger synchronization
-  4) Section reveal timelines
-  5) Project visual choreography
-  6) Interaction layer: cursor, magnetic links, parallax orb
-*/
-
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 const hasLenis = typeof window.Lenis !== 'undefined';
 
 document.getElementById('year').textContent = new Date().getFullYear();
+
+function initEmailCopy() {
+  const emailLinks = document.querySelectorAll('[data-copy-email]');
+  if (!emailLinks.length) return;
+
+  const copyText = async (value) => {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+      return;
+    }
+
+    const input = document.createElement('textarea');
+    input.value = value;
+    input.setAttribute('readonly', '');
+    input.style.position = 'fixed';
+    input.style.opacity = '0';
+    input.style.pointerEvents = 'none';
+    document.body.appendChild(input);
+    input.select();
+    input.setSelectionRange(0, input.value.length);
+    document.execCommand('copy');
+    input.remove();
+  };
+
+  emailLinks.forEach(link => {
+    link.addEventListener('click', async (event) => {
+      event.preventDefault();
+      try {
+        await copyText(link.dataset.copyEmail);
+        link.classList.remove('email-copied');
+        void link.offsetWidth;
+        link.classList.add('email-copied');
+        window.setTimeout(() => link.classList.remove('email-copied'), 700);
+      } catch (error) {
+        console.warn('Could not copy email address.', error);
+      }
+    });
+  });
+}
 
 function initLenis() {
   if (!hasLenis || reduceMotion) return null;
@@ -565,3 +592,5 @@ window.setTimeout(() => {
     });
   }
 }, 4300);
+
+initEmailCopy();
