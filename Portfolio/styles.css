@@ -1502,3 +1502,12 @@ body.hero-live .hero__footer .scroll-cue { animation: heroFocusFinal .62s 1.36s 
   body.hero-live .hero__footer .scroll-cue { animation:none !important; opacity:1 !important; transform:none !important; filter:none !important; }
   .principle-kinetic__dot,.principle-kinetic__path path{animation:none!important}
 }
+
+
+/* Email actions copy the address directly without launching a mail app. */
+.copy-email { cursor: pointer; }
+.copy-email.email-copied { animation: emailCopyPulse .7s var(--ease); }
+@keyframes emailCopyPulse {
+  0%, 100% { opacity: 1; }
+  45% { opacity: .58; }
+}
