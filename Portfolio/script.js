@@ -1,47 +1,10 @@
+document.documentElement.classList.add('js');
+
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 const hasLenis = typeof window.Lenis !== 'undefined';
 
 document.getElementById('year').textContent = new Date().getFullYear();
-
-function initEmailCopy() {
-  const emailLinks = document.querySelectorAll('[data-copy-email]');
-  if (!emailLinks.length) return;
-
-  const copyText = async (value) => {
-    if (navigator.clipboard && window.isSecureContext) {
-      await navigator.clipboard.writeText(value);
-      return;
-    }
-
-    const input = document.createElement('textarea');
-    input.value = value;
-    input.setAttribute('readonly', '');
-    input.style.position = 'fixed';
-    input.style.opacity = '0';
-    input.style.pointerEvents = 'none';
-    document.body.appendChild(input);
-    input.select();
-    input.setSelectionRange(0, input.value.length);
-    document.execCommand('copy');
-    input.remove();
-  };
-
-  emailLinks.forEach(link => {
-    link.addEventListener('click', async (event) => {
-      event.preventDefault();
-      try {
-        await copyText(link.dataset.copyEmail);
-        link.classList.remove('email-copied');
-        void link.offsetWidth;
-        link.classList.add('email-copied');
-        window.setTimeout(() => link.classList.remove('email-copied'), 700);
-      } catch (error) {
-        console.warn('Could not copy email address.', error);
-      }
-    });
-  });
-}
 
 function initLenis() {
   if (!hasLenis || reduceMotion) return null;
@@ -125,8 +88,13 @@ function runIntroSequence() {
   gsap.set('.site-header .brand, .site-header .nav-link, .site-header .availability', { opacity: 0, y: -14 });
   gsap.set('.site-header', { '--header-line': 0 });
   gsap.set('.hero__meta, .eyebrow, .hero__dek, .hero__contact-strip', { opacity: 0, y: 20 });
+  // MAZE / BUILDS begins concealed and is revealed by this same timeline.
+  // Keeping the reveal inside GSAP removes the fragile CSS-class handoff.
+  gsap.set('.hero-line > span', { visibility: 'visible', opacity: 0, yPercent: 118, rotationX: 9, transformOrigin: '50% 100%', filter: 'blur(7px)' });
   gsap.set('.hero__map-card', { opacity: 0, x: 28, scale: .975 });
   gsap.set('.hero__motion-field', { opacity: 0 });
+  gsap.set('.hero__footer .kicker, .hero__statement p, .hero__footer .scroll-cue', { opacity: 0, y: 18 });
+  gsap.set('.hero__footer', { borderTopColor: 'rgba(255,255,255,0)' });
   gsap.set('.ph-island', { strokeDasharray: 1, strokeDashoffset: 1, opacity: .12 });
 
   const heroSafety = window.setTimeout(() => {
@@ -166,11 +134,19 @@ function runIntroSequence() {
     }, '-=.62')
     .to('.hero__meta', { opacity: 1, y: 0, duration: .60 }, '-=.47')
     .to('.eyebrow', { opacity: 1, y: 0, duration: .56 }, '-=.42')
-    .add(() => document.body.classList.add('hero-live'))
+    // Hand the title reveal to one native CSS sequence. This avoids competing
+    // transforms between GSAP and the stylesheet while preserving the same
+    // concealed-first MAZE / BUILDS entrance.
+    .add(() => document.body.classList.add('hero-live'), '-=.30')
+    .to({}, { duration: 1.22 })
     .to('.hero__motion-field', { opacity: .48, duration: .9, ease: 'power2.out' }, '-=.72')
     .to('.hero__dek', { opacity: 1, y: 0, duration: .68 }, '-=.56')
     .to('.hero__contact-strip', { opacity: 1, y: 0, duration: .70 }, '-=.50')
     .to('.hero__map-card', { opacity: 1, x: 0, scale: 1, duration: .86, ease: 'power4.out' }, '-=.76')
+    .to('.hero__footer', { borderTopColor: 'rgba(255,255,255,.11)', duration: .45 }, '-=.30')
+    .to('.hero__footer .kicker, .hero__statement p, .hero__footer .scroll-cue', {
+      opacity: 1, y: 0, duration: .65, stagger: .11, ease: 'power3.out'
+    }, '-=.32')
     .to('.ph-island', {
       strokeDashoffset: 0,
       opacity: (i, target) => target.classList.contains('ph-island--mindanao') ? 1 : .78,
@@ -297,7 +273,7 @@ function initScrollSequences() {
   document.querySelectorAll('.project-card').forEach((card, index) => {
     const visual = card.querySelector('.project-card__visual');
     const info = card.querySelector('.project-card__info');
-    const art = visual.querySelector('.project-screenshot-link img') || visual.firstElementChild;
+    const art = visual.querySelector('.system-shot') || visual.querySelector('.system-demo') || visual.querySelector('.project-screenshot-link img') || visual.firstElementChild;
 
     const projectTl = gsap.timeline({
       scrollTrigger: { trigger: card, start: 'top 78%', once: true }
@@ -309,12 +285,12 @@ function initScrollSequences() {
         duration: 1.05,
         ease: 'power4.inOut'
       })
-      .from(art, { scale: 1.13, opacity: .35, duration: 1.25, ease: 'power3.out' }, '-=.55')
+      .from(art, { scale: visual.classList.contains('project-card__visual--screenshot') ? 1.035 : 1.13, opacity: .35, duration: 1.25, ease: 'power3.out' }, '-=.55')
       .from(info.children, { y: 25, opacity: 0, duration: .7, stagger: .1 }, '-=.72');
 
     gsap.to(art, {
       yPercent: visual.classList.contains('project-card__visual--screenshot') ? 0 : (index % 2 ? -6 : 6),
-      scale: 1.03,
+      scale: visual.classList.contains('project-card__visual--screenshot') ? 1 : 1.03,
       ease: 'none',
       scrollTrigger: { trigger: visual, start: 'top bottom', end: 'bottom top', scrub: 1.1 }
     });
@@ -509,6 +485,140 @@ function initProjectTilt() {
   });
 }
 
+function initSystemDemos() {
+  const demos = [...document.querySelectorAll('[data-system-demo]')];
+  if (!demos.length) return;
+
+  const animateCounters = (demo) => {
+    demo.querySelectorAll('[data-demo-count]').forEach(el => {
+      const target = Number(el.dataset.demoCount || 0);
+      if (!Number.isFinite(target) || el.dataset.demoCounted === 'true') return;
+      el.dataset.demoCounted = 'true';
+      if (reduceMotion || target === 0) {
+        el.textContent = String(target);
+        return;
+      }
+      const started = performance.now();
+      const duration = 1100 + Math.min(target, 240) * 1.4;
+      const tick = (now) => {
+        const t = Math.min(1, (now - started) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        el.textContent = String(Math.round(target * eased));
+        if (t < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  };
+
+  const activate = (demo) => {
+    if (demo.classList.contains('is-active')) return;
+    demo.classList.add('is-active');
+    animateCounters(demo);
+  };
+
+  if ('IntersectionObserver' in window && !reduceMotion) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        activate(entry.target);
+        observer.unobserve(entry.target);
+      });
+    }, { threshold: 0.06, rootMargin: '18% 0px 18% 0px' });
+    demos.forEach(demo => observer.observe(demo));
+
+    // Short-viewport safety: if an oversized project panel never satisfies the
+    // observer threshold, activate it as soon as any meaningful part is visible.
+    const visibilityCheck = () => {
+      demos.forEach(demo => {
+        if (demo.classList.contains('is-active')) return;
+        const rect = demo.getBoundingClientRect();
+        const visibleY = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+        const visibleX = Math.min(rect.right, window.innerWidth) - Math.max(rect.left, 0);
+        if (visibleY > Math.min(90, rect.height * .08) && visibleX > Math.min(120, rect.width * .08)) activate(demo);
+      });
+    };
+    visibilityCheck();
+    window.addEventListener('scroll', visibilityCheck, { passive: true });
+    window.addEventListener('resize', visibilityCheck, { passive: true });
+  } else {
+    demos.forEach(activate);
+  }
+
+  if (!window.matchMedia('(pointer: fine)').matches || reduceMotion) return;
+  demos.forEach(demo => {
+    demo.addEventListener('pointermove', event => {
+      const rect = demo.getBoundingClientRect();
+      const x = ((event.clientX - rect.left) / rect.width) * 100;
+      const y = ((event.clientY - rect.top) / rect.height) * 100;
+      demo.style.setProperty('--mx', `${Math.max(0, Math.min(100, x))}%`);
+      demo.style.setProperty('--my', `${Math.max(0, Math.min(100, y))}%`);
+    });
+    demo.addEventListener('pointerleave', () => {
+      demo.style.setProperty('--mx', '50%');
+      demo.style.setProperty('--my', '40%');
+    });
+  });
+}
+
+function initCopyActions() {
+  const toast = document.querySelector('.copy-toast');
+  let toastTimer = null;
+
+  const fallbackCopy = (text) => {
+    const area = document.createElement('textarea');
+    area.value = text;
+    area.setAttribute('readonly', '');
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    area.style.pointerEvents = 'none';
+    document.body.appendChild(area);
+    area.select();
+    area.setSelectionRange(0, area.value.length);
+    const copied = document.execCommand('copy');
+    area.remove();
+    return copied;
+  };
+
+  const copyText = async (text) => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      return fallbackCopy(text);
+    } catch (error) {
+      return fallbackCopy(text);
+    }
+  };
+
+  document.querySelectorAll('.copy-trigger').forEach(button => {
+    button.addEventListener('click', async () => {
+      const value = button.dataset.copy || '';
+      if (!value) return;
+      const ok = await copyText(value);
+      const state = button.querySelector('.copy-state');
+      const original = state?.dataset.original || state?.textContent || 'COPY';
+      if (state && !state.dataset.original) state.dataset.original = original;
+
+      if (state) state.textContent = ok ? 'COPIED' : 'SELECT';
+      button.classList.toggle('is-copied', ok);
+
+      if (toast) {
+        const label = button.dataset.copyLabel || 'Text';
+        toast.textContent = ok ? `${label} copied to clipboard` : `Unable to copy ${label.toLowerCase()}`;
+        toast.classList.add('is-visible');
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 1700);
+      }
+
+      window.setTimeout(() => {
+        if (state) state.textContent = original;
+        button.classList.remove('is-copied');
+      }, 1700);
+    });
+  });
+}
+
 function initMobileMenu() {
   const button = document.querySelector('.menu-button');
   const menu = document.querySelector('.mobile-menu');
@@ -545,6 +655,8 @@ async function bootPortfolio() {
   }
 
   try {
+    initCopyActions();
+    initSystemDemos();
     if (reduceMotion || !hasGSAP) {
       initPrincipleKinetic();
       fallbackReveal();
@@ -553,6 +665,7 @@ async function bootPortfolio() {
 
     initPrincipleKinetic();
     initScrollSequences();
+    initProjectAccumulation();
     initPointerLayer();
     initHeroMapPointer();
     initProjectTilt();
@@ -571,8 +684,8 @@ window.setTimeout(() => {
   if (document.body.classList.contains('is-loading')) forceHeroVisible();
 }, 7600);
 
-// Independent hero integrity guard. The title/current-focus sequence is CSS-driven
-// after the loader, so it cannot be left half-hidden by a GSAP interruption.
+// Independent hero integrity guard: if a browser interrupts the intro timeline,
+// restore the title and current-focus content without reopening the loader.
 window.setTimeout(() => {
   if (reduceMotion || document.body.classList.contains('is-loading')) return;
   document.body.classList.add('hero-live');
@@ -591,6 +704,82 @@ window.setTimeout(() => {
       el.style.visibility = 'visible';
     });
   }
-}, 4300);
 
-initEmailCopy();
+  document.querySelectorAll('.hero__footer .kicker, .hero__statement p, .hero__footer .scroll-cue').forEach(el => {
+    if (Number(getComputedStyle(el).opacity) < .5) {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    }
+  });
+  const footer = document.querySelector('.hero__footer');
+  if (footer) footer.style.borderTopColor = 'rgba(255,255,255,.11)';
+}, 5200);
+
+/* Real screenshots stay intact; one project-specific graphic accumulates in
+   layers as the user scrolls through each case study. */
+function initProjectAccumulation() {
+  const graphics = [...document.querySelectorAll('[data-accum-graphic]')];
+  if (!graphics.length || reduceMotion || !hasGSAP) return;
+
+  graphics.forEach((graphic, graphicIndex) => {
+    const card = graphic.closest('.project-card');
+    const pieces = [...graphic.querySelectorAll('.accum-piece')];
+    const image = card?.querySelector('.system-shot > img');
+    if (!card || !pieces.length) return;
+
+    pieces.forEach((piece, i) => {
+      gsap.set(piece, {
+        x: Number(piece.dataset.x || 0),
+        y: Number(piece.dataset.y || 0),
+        rotation: Number(piece.dataset.r || 0),
+        scale: Number(piece.dataset.s || .6),
+        opacity: 0,
+        transformOrigin: '50% 50%'
+      });
+    });
+
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: card,
+        start: 'top 88%',
+        end: 'center 42%',
+        scrub: 0.85,
+        invalidateOnRefresh: true
+      }
+    });
+
+    if (image) {
+      tl.fromTo(image,
+        { scale: 1.055, filter: 'saturate(.72) brightness(.76) contrast(1.04)' },
+        { scale: 1.002, filter: 'saturate(.92) brightness(.93) contrast(1.02)', duration: 1.15 },
+        0
+      );
+    }
+
+    pieces.forEach((piece, i) => {
+      tl.to(piece, {
+        x: 0,
+        y: 0,
+        rotation: 0,
+        scale: 1,
+        opacity: 1,
+        duration: .8
+      }, .14 + i * .13);
+    });
+
+    // Once assembled, retain a very subtle depth drift rather than replacing
+    // the screenshot with another interface.
+    gsap.to(graphic, {
+      y: graphicIndex % 2 ? -10 : 10,
+      rotation: graphicIndex % 2 ? -.7 : .7,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: card,
+        start: 'center 50%',
+        end: 'bottom top',
+        scrub: 1.2
+      }
+    });
+  });
+}
