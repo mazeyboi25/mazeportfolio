@@ -4654,3 +4654,164 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   }
 
 }
+
+/* ==========================================================
+   FINAL DESKTOP SPACING RESET
+   Keep this at the VERY BOTTOM of styles.css
+   ========================================================== */
+
+@media (min-width: 821px) {
+
+  /* General section spacing */
+  .section-pad {
+    padding-top: clamp(90px, 7vw, 130px) !important;
+    padding-bottom: clamp(90px, 7vw, 130px) !important;
+  }
+
+
+  /* =====================================
+     FLAGSHIP SYSTEMS
+  ===================================== */
+
+  .work__heading {
+    margin-bottom: 70px !important;
+    gap: 40px !important;
+  }
+
+  .work__heading .display-title {
+    margin-top: 32px !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .work__side {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .work__side .section-note {
+    margin-top: 0 !important;
+  }
+
+
+  /* =====================================
+     TECH STACK
+  ===================================== */
+
+  .tech-stack__head {
+    padding-top: 100px !important;
+    padding-bottom: 55px !important;
+
+    gap: clamp(50px, 6vw, 100px) !important;
+  }
+
+  .tech-stack__title {
+    margin-top: 28px !important;
+    margin-bottom: 0 !important;
+  }
+
+  .tech-stack__note {
+    margin-top: 0 !important;
+  }
+
+  .tech-stack__viewport {
+    padding-bottom: 90px !important;
+  }
+
+
+  /* =====================================
+     CAPABILITIES
+  ===================================== */
+
+  .capabilities__layout {
+    padding-top: 50px !important;
+    gap: clamp(60px, 7vw, 120px) !important;
+  }
+
+  .capabilities__lead .display-title {
+    margin-top: 28px !important;
+    margin-bottom: 45px !important;
+  }
+
+
+  /* =====================================
+     CERTIFICATES
+  ===================================== */
+
+  .certificates__heading {
+    padding-top: 48px !important;
+    padding-bottom: 45px !important;
+
+    gap: 60px !important;
+  }
+
+  .certificates__heading .kicker {
+    margin-bottom: 22px !important;
+  }
+
+  .certificates__heading .display-title {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  .certificates__intro {
+    margin-top: 0 !important;
+  }
+
+
+  /* =====================================
+     PROCESS
+  ===================================== */
+
+  .experience__layout {
+    padding-top: 50px !important;
+
+    gap: clamp(70px, 8vw, 140px) !important;
+  }
+
+  .experience__sticky .kicker {
+    margin-bottom: 25px !important;
+  }
+
+  .experience__sticky .display-title {
+    margin-top: 0 !important;
+    margin-bottom: 45px !important;
+  }
+
+
+  /* =====================================
+     PRINCIPLES
+  ===================================== */
+
+  .principle {
+    padding-top: 110px !important;
+    padding-bottom: 110px !important;
+  }
+
+  .principle__layout {
+    padding-top: 55px !important;
+    gap: 60px !important;
+  }
+
+
+  /* =====================================
+     CONTACT
+  ===================================== */
+
+  .contact__main {
+    padding-top: 70px !important;
+    padding-bottom: 70px !important;
+  }
+
+
+  /* =====================================
+     TITLES
+     Preserve intentional desktop breaks
+  ===================================== */
+
+  .display-title br,
+  .tech-stack__title br {
+    display: initial !important;
+  }
+
+}
