@@ -4508,3 +4508,149 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
     flex-basis: 18px;
   }
 }
+/* ==========================================================
+   MOBILE HEADING SPACING FIX
+   Put at the VERY BOTTOM of styles.css
+   ========================================================== */
+
+@media (max-width: 820px) {
+
+  /* Make all major section titles compact */
+  .display-title,
+  .tech-stack__title,
+  .profile-intro-title,
+  .contact__title {
+    font-size: clamp(42px, 12vw, 62px) !important;
+    line-height: 0.98 !important;
+    letter-spacing: -0.055em !important;
+
+    margin-top: 22px !important;
+    margin-bottom: 24px !important;
+  }
+
+
+  /*
+   Remove the desktop-forced line breaks.
+   Mobile will wrap the title naturally instead.
+  */
+  .display-title br,
+  .tech-stack__title br {
+    display: none !important;
+  }
+
+
+  /* Work */
+  .work__heading {
+    gap: 18px !important;
+    margin-bottom: 34px !important;
+  }
+
+  .work__heading .display-title {
+    padding-top: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .work__side {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+  }
+
+  .work__side .section-note {
+    margin-top: 0 !important;
+    max-width: 34ch;
+    line-height: 1.55;
+  }
+
+
+  /* Tech stack */
+  .tech-stack__head {
+    gap: 18px !important;
+    padding-top: 52px !important;
+    padding-bottom: 28px !important;
+  }
+
+  .tech-stack__title {
+    margin-top: 22px !important;
+  }
+
+  .tech-stack__note {
+    margin-top: 0 !important;
+  }
+
+
+  /* Capabilities */
+  .capabilities__layout {
+    gap: 28px !important;
+    padding-top: 28px !important;
+  }
+
+  .capabilities__lead {
+    gap: 0 !important;
+  }
+
+  .capabilities__lead .display-title {
+    margin-bottom: 28px !important;
+  }
+
+
+  /* Certificates */
+  .certificates__heading {
+    gap: 20px !important;
+    padding-top: 28px !important;
+    padding-bottom: 30px !important;
+  }
+
+  .certificates__heading .kicker {
+    margin-bottom: 18px !important;
+  }
+
+  .certificates__heading .display-title {
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
+  }
+
+  .certificates__intro {
+    margin-top: 0 !important;
+  }
+
+
+  /* Process */
+  .experience__layout {
+    padding-top: 30px !important;
+    gap: 34px !important;
+  }
+
+  .experience__sticky .kicker {
+    margin-bottom: 18px !important;
+  }
+
+  .experience__sticky .display-title {
+    margin-top: 0 !important;
+    margin-bottom: 28px !important;
+  }
+
+
+  /* Section labels */
+  .section-index,
+  .kicker {
+    line-height: 1.35 !important;
+  }
+}
+
+
+/* Extra cleanup for narrow phones */
+@media (max-width: 520px) {
+
+  .display-title,
+  .tech-stack__title {
+    font-size: clamp(40px, 12.5vw, 54px) !important;
+    line-height: 1 !important;
+  }
+
+  .work__heading,
+  .tech-stack__head,
+  .certificates__heading {
+    gap: 14px !important;
+  }
+
+}
