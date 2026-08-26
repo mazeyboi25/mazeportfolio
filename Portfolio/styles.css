@@ -4111,3 +4111,116 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   body.menu-open { overflow: hidden; touch-action: none; }
   body.menu-open .site-header { background: #070611; }
 }
+
+
+/* =========================================
+   MOBILE MENU — RELIABLE TOUCH NAVIGATION
+   ========================================= */
+@media (max-width: 1040px) {
+  .mobile-menu {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background:
+      radial-gradient(70vw 55vh at 92% 8%, rgba(107, 79, 255, .16), transparent 70%),
+      rgba(7, 6, 17, .985);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate3d(0, -100%, 0);
+    transition:
+      transform .52s cubic-bezier(.22, 1, .36, 1),
+      opacity .28s ease,
+      visibility 0s linear .52s;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-menu.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translate3d(0, 0, 0);
+    transition:
+      transform .52s cubic-bezier(.22, 1, .36, 1),
+      opacity .28s ease,
+      visibility 0s;
+  }
+
+  .mobile-menu__inner {
+    min-height: 100dvh;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding:
+      max(96px, calc(68px + env(safe-area-inset-top) + 20px))
+      max(20px, calc(5vw + env(safe-area-inset-right)))
+      max(34px, calc(24px + env(safe-area-inset-bottom)))
+      max(20px, calc(5vw + env(safe-area-inset-left)));
+  }
+
+  .mobile-menu a {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    min-height: 66px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 2px;
+    border-bottom: 1px solid rgba(255,255,255,.11);
+    color: #f4f0ff;
+    font-size: clamp(30px, 9.2vw, 48px);
+    line-height: 1;
+    letter-spacing: -.045em;
+    text-decoration: none;
+    touch-action: manipulation;
+  }
+
+  .mobile-menu a:first-child {
+    border-top: 1px solid rgba(255,255,255,.11);
+  }
+
+  .mobile-menu a span {
+    min-width: 38px;
+    color: #c5b8ff;
+    font: 700 14px/1 "DM Mono", monospace;
+    letter-spacing: .045em;
+    text-align: right;
+  }
+
+  .menu-button {
+    position: relative;
+    z-index: 1150;
+    display: grid;
+    place-content: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .menu-button span {
+    width: 23px;
+    height: 1.5px;
+    margin: 3.5px 0;
+    transform-origin: center;
+    transition: transform .3s ease, opacity .2s ease;
+  }
+
+  .menu-button.is-open span:first-child {
+    transform: translateY(4.25px) rotate(45deg);
+  }
+
+  .menu-button.is-open span:last-child {
+    transform: translateY(-4.25px) rotate(-45deg);
+  }
+
+  body.menu-open {
+    overflow: hidden;
+    touch-action: none;
+  }
+}

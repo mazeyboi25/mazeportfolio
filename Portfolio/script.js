@@ -630,37 +630,50 @@ function initMobileMenu() {
   const button = document.querySelector('.menu-button');
   const menu = document.querySelector('.mobile-menu');
   if (!button || !menu) return;
-  let open = false;
 
-  const setMenu = next => {
-    open = next;
+  const links = Array.from(menu.querySelectorAll('a[href^="#"]'));
+
+  const setMenu = (open) => {
     button.setAttribute('aria-expanded', String(open));
+    button.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    button.classList.toggle('is-open', open);
+
     menu.setAttribute('aria-hidden', String(!open));
+    menu.classList.toggle('is-open', open);
     document.body.classList.toggle('menu-open', open);
+
     if (open) {
-      menu.style.visibility = 'visible';
       lenis?.stop();
-      if (hasGSAP && !reduceMotion) {
-        gsap.to(menu, { yPercent: 105, duration: 0 });
-        gsap.to(menu, { yPercent: 0, duration: .62, ease: 'power4.inOut' });
-        gsap.fromTo('.mobile-menu a', { y: 28, opacity: 0 }, { y: 0, opacity: 1, stagger: .055, delay: .2, duration: .48 });
-      } else {
-        menu.style.transform = 'translateY(0)';
-        menu.querySelectorAll('a').forEach(a => { a.style.opacity = '1'; a.style.transform = 'none'; });
-      }
+      const firstLink = links[0];
+      if (firstLink) window.setTimeout(() => firstLink.focus({ preventScroll: true }), 180);
     } else {
-      const finish = () => { menu.style.visibility = 'hidden'; lenis?.start(); };
-      if (hasGSAP && !reduceMotion) {
-        gsap.to(menu, { yPercent: -105, duration: .5, ease: 'power4.inOut', onComplete: finish });
-      } else {
-        menu.style.transform = 'translateY(-105%)';
-        finish();
-      }
+      lenis?.start();
     }
   };
 
-  button.addEventListener('click', () => setMenu(!open));
-  menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+  button.addEventListener('click', () => {
+    const open = button.getAttribute('aria-expanded') !== 'true';
+    setMenu(open);
+  });
+
+  links.forEach(link => {
+    link.addEventListener('click', () => setMenu(false));
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && button.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      button.focus();
+    }
+  });
+
+  // If the viewport grows back to desktop size, never leave the overlay open.
+  const desktopMq = window.matchMedia('(min-width: 1041px)');
+  const closeOnDesktop = (event) => {
+    if (event.matches) setMenu(false);
+  };
+  if (desktopMq.addEventListener) desktopMq.addEventListener('change', closeOnDesktop);
+  else desktopMq.addListener(closeOnDesktop);
 }
 
 async function bootPortfolio() {
