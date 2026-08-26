@@ -3399,3 +3399,286 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   }
 
 }
+
+/* =========================================
+   COMMEND BUTTON
+========================================= */
+
+.commend-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+
+  padding: 60px 20px 40px;
+}
+
+.commend-label {
+  margin: 0;
+
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.commend-button {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+
+  min-width: 300px;
+
+  padding: 14px 16px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(122, 91, 255, 0.16),
+      transparent 45%
+    ),
+    rgba(255, 255, 255, 0.035);
+
+  color: #f2efff;
+
+  cursor: pointer;
+
+  overflow: hidden;
+
+  backdrop-filter: blur(16px);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.24),
+    inset 0 1px rgba(255, 255, 255, 0.05);
+
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.3s ease,
+    background 0.3s ease;
+}
+
+.commend-button::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgba(255, 255, 255, 0.08) 45%,
+    transparent 65%
+  );
+
+  transform: translateX(-130%);
+
+  transition: transform 0.7s ease;
+}
+
+.commend-button:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(151, 126, 255, 0.48);
+
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(122, 91, 255, 0.25),
+      transparent 50%
+    ),
+    rgba(255, 255, 255, 0.045);
+}
+
+.commend-button:hover::before {
+  transform: translateX(130%);
+}
+
+.commend-button:active {
+  transform: scale(0.98);
+}
+
+
+/* STAR */
+
+.commend-icon {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  place-items: center;
+
+  width: 50px;
+  height: 50px;
+
+  flex: 0 0 50px;
+
+  border-radius: 14px;
+
+  background: rgba(116, 87, 255, 0.13);
+
+  border: 1px solid rgba(151, 126, 255, 0.25);
+
+  color: #a995ff;
+
+  font-size: 20px;
+
+  box-shadow:
+    0 0 30px rgba(112, 77, 255, 0.12);
+
+  transition:
+    transform 0.35s ease,
+    background 0.35s ease;
+}
+
+.commend-button:hover .commend-icon {
+  transform: rotate(15deg) scale(1.08);
+
+  background: rgba(116, 87, 255, 0.22);
+}
+
+
+/* TEXT */
+
+.commend-copy {
+  position: relative;
+  z-index: 2;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  flex: 1;
+}
+
+.commend-copy strong {
+  font-family: "DM Mono", monospace;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  letter-spacing: 0.1em;
+}
+
+.commend-copy small {
+  margin-top: 4px;
+
+  color: rgba(255, 255, 255, 0.42);
+
+  font-size: 10px;
+}
+
+
+/* COUNTER */
+
+.commend-count {
+  position: relative;
+  z-index: 2;
+
+  min-width: 52px;
+
+  padding: 10px 12px;
+
+  border-radius: 12px;
+
+  background: rgba(0, 0, 0, 0.24);
+
+  border: 1px solid rgba(255, 255, 255, 0.07);
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 14px;
+
+  color: #bcaeff;
+
+  text-align: center;
+}
+
+
+/* AFTER CLICK */
+
+.commend-button.is-commended {
+  border-color: rgba(137, 112, 255, 0.5);
+}
+
+.commend-button.is-commended .commend-icon {
+  background: #816cff;
+
+  color: white;
+
+  transform: rotate(360deg);
+}
+
+.commend-button.is-commended .commend-copy strong {
+  color: #b9adff;
+}
+
+.commend-button:disabled {
+  cursor: default;
+}
+
+
+/* SMALL STATUS */
+
+.commend-status {
+  min-height: 15px;
+
+  margin: 0;
+
+  font-family: "DM Mono", monospace;
+
+  font-size: 8px;
+  letter-spacing: 0.1em;
+
+  color: rgba(255, 255, 255, 0.35);
+}
+
+
+/* CLICK POP */
+
+.commend-count.commend-pop {
+  animation: commendPop 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes commendPop {
+  0% {
+    transform: scale(1);
+  }
+
+  45% {
+    transform: scale(1.35);
+    color: white;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+
+/* PHONE */
+
+@media (max-width: 520px) {
+  .commend-wrap {
+    padding: 45px 18px 30px;
+  }
+
+  .commend-button {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .commend-icon {
+    width: 46px;
+    height: 46px;
+
+    flex-basis: 46px;
+  }
+}

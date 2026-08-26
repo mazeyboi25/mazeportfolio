@@ -1091,3 +1091,147 @@ class MzaCarousel {
 
 const certificateCarousel = document.getElementById('mzaCarousel');
 if (certificateCarousel) new MzaCarousel(certificateCarousel, { transitionMs: 900 });
+
+/* =========================================
+   PORTFOLIO COMMEND
+========================================= */
+
+const SUPABASE_URL = "https://uqqcfaxtnsfpclyxobtn.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_k7L7JDe-W6VZvWH2F5bGZQ_DMM0kwaw";
+
+const commendButton = document.getElementById("commendButton");
+const commendCount = document.getElementById("commendCount");
+const commendStatus = document.getElementById("commendStatus");
+
+const hasCommended =
+  localStorage.getItem("maze_portfolio_commended") === "true";
+
+
+async function loadCommendCount() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/portfolio_commends?id=eq.1&select=count`,
+      {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    const data = await response.json();
+
+    if (data?.[0]?.count !== undefined) {
+      commendCount.textContent = data[0].count;
+    }
+
+  } catch (error) {
+    console.error("Unable to load commend count:", error);
+  }
+}
+
+
+function showAlreadyCommended() {
+  commendButton.classList.add("is-commended");
+
+  commendButton.querySelector(
+    ".commend-copy strong"
+  ).textContent = "COMMENDED";
+
+  commendButton.querySelector(
+    ".commend-copy small"
+  ).textContent = "Thanks for the support";
+
+  commendStatus.textContent =
+    "YOU'VE ALREADY COMMENDED THIS PORTFOLIO";
+}
+
+
+async function commendPortfolio() {
+
+  if (
+    localStorage.getItem("maze_portfolio_commended") === "true"
+  ) {
+    showAlreadyCommended();
+    return;
+  }
+
+  commendButton.disabled = true;
+
+  commendStatus.textContent = "ADDING COMMEND...";
+
+  try {
+
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/rpc/increment_portfolio_commend`,
+      {
+        method: "POST",
+
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          "Content-Type": "application/json"
+        },
+
+        body: "{}"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Commend request failed");
+    }
+
+    const newCount = await response.json();
+
+    commendCount.textContent = newCount;
+
+    localStorage.setItem(
+      "maze_portfolio_commended",
+      "true"
+    );
+
+    commendButton.classList.add("is-commended");
+
+    commendCount.classList.remove("commend-pop");
+
+    void commendCount.offsetWidth;
+
+    commendCount.classList.add("commend-pop");
+
+    commendButton.querySelector(
+      ".commend-copy strong"
+    ).textContent = "COMMENDED";
+
+    commendButton.querySelector(
+      ".commend-copy small"
+    ).textContent = "Thanks for the support";
+
+    commendStatus.textContent =
+      "COMMEND ADDED ✦";
+
+  } catch (error) {
+
+    console.error(error);
+
+    commendStatus.textContent =
+      "COULDN'T ADD COMMEND — TRY AGAIN";
+
+    commendButton.disabled = false;
+
+  }
+}
+
+
+if (commendButton) {
+
+  loadCommendCount();
+
+  if (hasCommended) {
+    showAlreadyCommended();
+  }
+
+  commendButton.addEventListener(
+    "click",
+    commendPortfolio
+  );
+}
