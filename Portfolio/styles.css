@@ -3682,3 +3682,72 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
     flex-basis: 46px;
   }
 }
+/* =========================================
+   NAVIGATION — ALIGNMENT + READABILITY
+========================================= */
+
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(26px, 3vw, 46px);
+}
+
+.nav-link {
+  display: grid;
+  grid-template-columns: 28px auto;
+  align-items: center;
+  column-gap: 8px;
+
+  color: rgba(245, 242, 255, 0.82);
+
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+
+  text-decoration: none;
+
+  transition:
+    color 0.25s ease,
+    transform 0.25s ease;
+}
+
+/* 01 / 02 / 03 / 04 */
+.nav-link span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+
+  min-width: 28px;
+
+  color: #a995ff;
+
+  font-family: "DM Mono", monospace;
+  font-size: 11px;
+  font-weight: 500;
+
+  letter-spacing: 0.04em;
+}
+
+/* Easier to see when hovering */
+.nav-link:hover {
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.nav-link:hover span {
+  color: #c9bdff;
+}
+
+
+/* =========================================
+   SECTION SCROLL ALIGNMENT
+========================================= */
+
+#work,
+#about,
+#certificates,
+#experience,
+#contact {
+  scroll-margin-top: 110px;
+}

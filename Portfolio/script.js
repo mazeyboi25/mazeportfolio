@@ -1235,3 +1235,73 @@ if (commendButton) {
     commendPortfolio
   );
 }
+
+/* =========================================
+   NAVIGATION SCROLL ALIGNMENT
+========================================= */
+
+const navigationLinks = document.querySelectorAll(
+  '.desktop-nav a[href^="#"], .mobile-menu a[href^="#"]'
+);
+
+navigationLinks.forEach((link) => {
+
+  link.addEventListener("click", (event) => {
+
+    const targetId = link.getAttribute("href");
+
+    if (!targetId || targetId === "#") return;
+
+    const target = document.querySelector(targetId);
+
+    if (!target) return;
+
+    event.preventDefault();
+
+
+    /* Header offset */
+    const header = document.querySelector(".site-header");
+
+    const headerHeight =
+      header ? header.offsetHeight : 70;
+
+    const offset =
+      -(headerHeight + 28);
+
+
+    /*
+     * Use Lenis if your portfolio
+     * already initialized it.
+     */
+    if (
+      typeof lenis !== "undefined" &&
+      lenis
+    ) {
+
+      lenis.scrollTo(target, {
+        offset: offset,
+        duration: 1.15
+      });
+
+    }
+
+    /*
+     * Browser fallback
+     */
+    else {
+
+      const position =
+        target.getBoundingClientRect().top +
+        window.scrollY +
+        offset;
+
+      window.scrollTo({
+        top: position,
+        behavior: "smooth"
+      });
+
+    }
+
+  });
+
+});
