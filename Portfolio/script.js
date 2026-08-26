@@ -3,6 +3,8 @@ document.documentElement.classList.add('js');
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const hasGSAP = typeof window.gsap !== 'undefined' && typeof window.ScrollTrigger !== 'undefined';
 const hasLenis = typeof window.Lenis !== 'undefined';
+const isMobileViewport = window.matchMedia('(max-width: 820px)').matches;
+const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
 
 document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -10,10 +12,10 @@ function initLenis() {
   if (!hasLenis || reduceMotion) return null;
 
   const lenis = new Lenis({
-    lerp: 0.085,
+    lerp: isMobileViewport ? 0.14 : 0.085,
     smoothWheel: true,
     anchors: true,
-    wheelMultiplier: 0.9,
+    wheelMultiplier: isMobileViewport ? 1 : 0.9,
   });
 
   if (hasGSAP) {
@@ -183,13 +185,16 @@ function initScrollSequences() {
     scrollTrigger: { start: 0, end: 'max', scrub: .15 }
   });
 
-  // Soft global background travel
-  gsap.to('.hero__glow--one', {
-    yPercent: 80,
-    xPercent: -25,
-    ease: 'none',
-    scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2 }
-  });
+  // Soft global background travel. Skip this scrub on phones to reduce
+  // continuous compositing while the user is touch-scrolling.
+  if (!isMobileViewport) {
+    gsap.to('.hero__glow--one', {
+      yPercent: 80,
+      xPercent: -25,
+      ease: 'none',
+      scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.2 }
+    });
+  }
 
   // Standard reveals
   document.querySelectorAll('.reveal').forEach(el => {
@@ -288,12 +293,14 @@ function initScrollSequences() {
       .from(art, { scale: visual.classList.contains('project-card__visual--screenshot') ? 1.035 : 1.13, opacity: .35, duration: 1.25, ease: 'power3.out' }, '-=.55')
       .from(info.children, { y: 25, opacity: 0, duration: .7, stagger: .1 }, '-=.72');
 
-    gsap.to(art, {
-      yPercent: visual.classList.contains('project-card__visual--screenshot') ? 0 : (index % 2 ? -6 : 6),
-      scale: visual.classList.contains('project-card__visual--screenshot') ? 1 : 1.03,
-      ease: 'none',
-      scrollTrigger: { trigger: visual, start: 'top bottom', end: 'bottom top', scrub: 1.1 }
-    });
+    if (!isMobileViewport) {
+      gsap.to(art, {
+        yPercent: visual.classList.contains('project-card__visual--screenshot') ? 0 : (index % 2 ? -6 : 6),
+        scale: visual.classList.contains('project-card__visual--screenshot') ? 1 : 1.03,
+        ease: 'none',
+        scrollTrigger: { trigger: visual, start: 'top bottom', end: 'bottom top', scrub: 1.1 }
+      });
+    }
   });
 
   // Capability rows cascade as a group when the system comes into view.
@@ -340,7 +347,7 @@ function initPrincipleKinetic() {
 
   // Anime.js enhancement. The composition stays complete without the library;
   // when it is available the dot field ripples from the center in a staggered loop.
-  if (reduceMotion || typeof window.anime !== 'function') return;
+  if (reduceMotion || isMobileViewport || typeof window.anime !== 'function') return;
 
   window.anime({
     targets: '.principle-kinetic__dot',
@@ -629,14 +636,26 @@ function initMobileMenu() {
     open = next;
     button.setAttribute('aria-expanded', String(open));
     menu.setAttribute('aria-hidden', String(!open));
+    document.body.classList.toggle('menu-open', open);
     if (open) {
       menu.style.visibility = 'visible';
       lenis?.stop();
-      gsap.to(menu, { yPercent: 105, duration: 0 });
-      gsap.to(menu, { yPercent: 0, duration: .7, ease: 'power4.inOut' });
-      gsap.fromTo('.mobile-menu a', { y: 40, opacity: 0 }, { y: 0, opacity: 1, stagger: .07, delay: .27, duration: .55 });
+      if (hasGSAP && !reduceMotion) {
+        gsap.to(menu, { yPercent: 105, duration: 0 });
+        gsap.to(menu, { yPercent: 0, duration: .62, ease: 'power4.inOut' });
+        gsap.fromTo('.mobile-menu a', { y: 28, opacity: 0 }, { y: 0, opacity: 1, stagger: .055, delay: .2, duration: .48 });
+      } else {
+        menu.style.transform = 'translateY(0)';
+        menu.querySelectorAll('a').forEach(a => { a.style.opacity = '1'; a.style.transform = 'none'; });
+      }
     } else {
-      gsap.to(menu, { yPercent: -105, duration: .62, ease: 'power4.inOut', onComplete: () => { menu.style.visibility = 'hidden'; lenis?.start(); } });
+      const finish = () => { menu.style.visibility = 'hidden'; lenis?.start(); };
+      if (hasGSAP && !reduceMotion) {
+        gsap.to(menu, { yPercent: -105, duration: .5, ease: 'power4.inOut', onComplete: finish });
+      } else {
+        menu.style.transform = 'translateY(-105%)';
+        finish();
+      }
     }
   };
 
@@ -657,6 +676,7 @@ async function bootPortfolio() {
   try {
     initCopyActions();
     initSystemDemos();
+    initMobileMenu();
     if (reduceMotion || !hasGSAP) {
       initPrincipleKinetic();
       fallbackReveal();
@@ -669,7 +689,6 @@ async function bootPortfolio() {
     initPointerLayer();
     initHeroMapPointer();
     initProjectTilt();
-    initMobileMenu();
     runIntroSequence();
   } catch (error) {
     console.error('Portfolio animation fallback:', error);
@@ -881,11 +900,13 @@ class MzaCarousel {
     }
 
     const pe = this.viewport;
-    pe.addEventListener('pointerdown', e => this._onDragStart(e));
-    pe.addEventListener('pointermove', e => this._onDragMove(e));
-    pe.addEventListener('pointerup', e => this._onDragEnd(e));
-    pe.addEventListener('pointercancel', e => this._onDragEnd(e));
-    pe.addEventListener('pointermove', e => this._onTilt(e));
+    if (!isCoarsePointer) {
+      pe.addEventListener('pointerdown', e => this._onDragStart(e));
+      pe.addEventListener('pointermove', e => this._onDragMove(e));
+      pe.addEventListener('pointerup', e => this._onDragEnd(e));
+      pe.addEventListener('pointercancel', e => this._onDragEnd(e));
+      pe.addEventListener('pointermove', e => this._onTilt(e));
+    }
 
     this.root.addEventListener('mouseenter', () => {
       this.state.hovering = true;
