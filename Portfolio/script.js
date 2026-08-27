@@ -1339,3 +1339,158 @@ navigationLinks.forEach((link) => {
   });
 
 });
+
+/* =========================================
+   SMALL BUILD CARDS
+   Cursor spotlight + subtle 3D response
+========================================= */
+
+const experimentCards =
+  document.querySelectorAll(
+    "[data-experiment-card]"
+  );
+
+
+experimentCards.forEach((card) => {
+
+  const preview =
+    card.querySelector(
+      ".small-project__preview"
+    );
+
+
+  if (!preview) return;
+
+
+  /*
+   * These effects only run
+   * on devices with a real mouse.
+   */
+
+  const finePointer =
+    window.matchMedia(
+      "(pointer: fine)"
+    ).matches;
+
+
+  const reduceMotion =
+    window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+
+  if (
+    !finePointer ||
+    reduceMotion
+  ) {
+    return;
+  }
+
+
+  preview.addEventListener(
+    "pointermove",
+    (event) => {
+
+      const rect =
+        preview.getBoundingClientRect();
+
+
+      const x =
+        event.clientX -
+        rect.left;
+
+
+      const y =
+        event.clientY -
+        rect.top;
+
+
+      /*
+       * Move light toward
+       * the mouse position.
+       */
+
+      const pointerX =
+        (
+          x /
+          rect.width
+        ) *
+        100;
+
+
+      const pointerY =
+        (
+          y /
+          rect.height
+        ) *
+        100;
+
+
+      preview.style.setProperty(
+        "--pointer-x",
+        `${pointerX}%`
+      );
+
+
+      preview.style.setProperty(
+        "--pointer-y",
+        `${pointerY}%`
+      );
+
+
+      /*
+       * Restrained tilt.
+       *
+       * Intentionally kept low
+       * so the real screenshots
+       * remain easy to read.
+       */
+
+      const rotateY =
+        (
+          (
+            x /
+            rect.width
+          ) -
+          .5
+        ) *
+        3.5;
+
+
+      const rotateX =
+        (
+          .5 -
+          (
+            y /
+            rect.height
+          )
+        ) *
+        3.5;
+
+
+      preview.style.transform = `
+        perspective(1200px)
+        rotateX(${rotateX}deg)
+        rotateY(${rotateY}deg)
+        translateY(-3px)
+      `;
+
+    }
+  );
+
+
+  preview.addEventListener(
+    "pointerleave",
+    () => {
+
+      preview.style.transform = `
+        perspective(1200px)
+        rotateX(0deg)
+        rotateY(0deg)
+        translateY(0)
+      `;
+
+    }
+  );
+
+});
