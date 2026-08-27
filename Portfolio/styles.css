@@ -457,8 +457,8 @@ svg { display: block; }
 .map-status { display: flex; align-items: center; gap: 7px; }
 .map-status i { width: 5px; height: 5px; border-radius: 50%; background: #63ef9a; box-shadow: 0 0 10px rgba(99,239,154,.7); }
 .map-frame {
-  --pin-x: 71.55%;
-  --pin-y: 74.10%;
+  --pin-x: 66.0%;
+  --pin-y: 69.6%;
   position: relative;
   aspect-ratio: .95;
   overflow: hidden;
@@ -478,7 +478,7 @@ svg { display: block; }
   pointer-events:none;
 }
 .map-frame::after {
-  content:"08.48° N  /  124.65° E";
+  content:"8.48222° N  /  124.64722° E";
   position:absolute;
   left:18px;
   bottom:16px;
@@ -3361,6 +3361,11 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
 ========================================= */
 
 @media (max-width: 520px) {
+
+  .map-frame{
+    --pin-x:64.3%;
+    --pin-y: 69.6%;
+  }
 
   .tech-stack__head {
     padding-top: 64px;
