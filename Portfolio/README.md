@@ -16,7 +16,7 @@ https://mazeyboi.is-a.dev
 
 ---
 
-# Main features are showin in the website.
+# Main features are shown in the website.
 
 ---
 
