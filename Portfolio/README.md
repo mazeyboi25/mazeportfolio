@@ -16,31 +16,7 @@ https://mazeyboi.is-a.dev
 
 ---
 
-# Main Features
-
-The website includes:
-
-- Animated landing page
-- `MAZE BUILDS.` hero animation
-- Personal profile section
-- Professional portrait
-- Animated Philippines map
-- Cagayan de Oro / Mindanao location marker
-- Three deployed software systems
-- Real screenshots of the systems
-- Animated project graphics
-- Tech stack showcase
-- Capabilities section
-- Certificate carousel
-- Development process section
-- Personal principles section
-- Contact section
-- Copy-to-clipboard email and phone buttons
-- Facebook, LinkedIn, GitHub, and Discord links
-- Smooth scrolling
-- Scroll-based animations
-- Desktop, tablet, and mobile layouts
-- Social media website preview image
+# Main features are showin in the website.
 
 ---
 
