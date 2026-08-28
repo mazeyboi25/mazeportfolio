@@ -1496,146 +1496,469 @@ experimentCards.forEach((card) => {
 });
 
 /* ============================================================
-   CAPABILITIES — SCROLL MOTION SEQUENCE
+   CAPABILITIES — SCROLL-DRIVEN SEQUENCE
    ============================================================ */
 
 (() => {
 
-  const capabilityRows =
-    [
-      ...document.querySelectorAll(
-        "[data-capability]"
-      )
-    ];
+  const section =
+    document.querySelector(
+      ".capabilities-sequence"
+    );
 
 
-  if (!capabilityRows.length) {
+  if (!section) {
     return;
   }
 
 
-  /*
-   * Reduced motion:
-   * show everything immediately.
-   */
-
-  const reducedMotion =
-    window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+  const title =
+    document.querySelector(
+      "#capability-title"
+    );
 
 
-  if (reducedMotion) {
+  const description =
+    document.querySelector(
+      "#capability-description"
+    );
 
-    capabilityRows.forEach(
-      (row) => {
 
-        row.classList.add(
-          "is-visible"
+  const tags =
+    document.querySelector(
+      "#capability-tags"
+    );
+
+
+  const number =
+    document.querySelector(
+      "#capability-number"
+    );
+
+
+  const ghost =
+    document.querySelector(
+      "#capability-ghost"
+    );
+
+
+  const progress =
+    document.querySelector(
+      "#capability-progress"
+    );
+
+
+  const progressLabel =
+    document.querySelector(
+      "#capability-progress-label"
+    );
+
+
+  const indicators =
+    [
+      ...document.querySelectorAll(
+        "[data-step-indicator]"
+      )
+    ];
+
+
+  /* ==========================================================
+     CONTENT
+     ========================================================== */
+
+  const capabilities = [
+
+    {
+      number:
+        "01",
+
+      title:
+        "Front-end<br>Development",
+
+      description:
+        "Responsive interfaces, interaction systems, and performance-minded builds designed to work cleanly across desktop and mobile.",
+
+      tags: [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "Responsive UI"
+      ]
+    },
+
+
+    {
+      number:
+        "02",
+
+      title:
+        "UI / UX<br>Design",
+
+      description:
+        "Clear user flows, visual systems, and component-driven interface design focused on making complex interactions easier to understand.",
+
+      tags: [
+        "User Flows",
+        "Visual Systems",
+        "Mobile UI",
+        "Interaction Design"
+      ]
+    },
+
+
+    {
+      number:
+        "03",
+
+      title:
+        "Information<br>Systems",
+
+      description:
+        "Practical systems for records, workflows, internal operations, databases, reporting, and everyday organizational processes.",
+
+      tags: [
+        "Supabase",
+        "PostgreSQL",
+        "Databases",
+        "Workflow Systems"
+      ]
+    },
+
+
+    {
+      number:
+        "04",
+
+      title:
+        "Motion &amp;<br>Prototyping",
+
+      description:
+        "Sequence-driven animation, interaction studies, scroll behavior, and polished prototypes that give interfaces a stronger sense of response.",
+
+      tags: [
+        "GSAP",
+        "Anime.js",
+        "Scroll Motion",
+        "Prototyping"
+      ]
+    }
+
+  ];
+
+
+  let activeIndex =
+    0;
+
+
+  let requestedIndex =
+    0;
+
+
+  let changing =
+    false;
+
+
+  /* ==========================================================
+     RENDER TAGS
+     ========================================================== */
+
+  function renderTags(
+    values
+  ) {
+
+    tags.innerHTML =
+      "";
+
+
+    values.forEach(
+      (value) => {
+
+        const tag =
+          document.createElement(
+            "span"
+          );
+
+
+        tag.textContent =
+          value;
+
+
+        tags.appendChild(
+          tag
         );
 
       }
     );
 
-
-    return;
-
   }
 
 
-  /*
-   * Observe the capabilities section.
-   *
-   * Every row gets its own reveal when it enters
-   * the visible area.
-   */
+  /* ==========================================================
+     CHANGE STATE
+     ========================================================== */
 
-  const observer =
-    new IntersectionObserver(
+  function changeCapability(
+    nextIndex
+  ) {
 
-      (entries) => {
-
-        entries.forEach(
-          (entry) => {
-
-            if (
-              !entry.isIntersecting
-            ) {
-              return;
-            }
+    if (
+      nextIndex ===
+        activeIndex
+      ||
+      changing
+    ) {
+      return;
+    }
 
 
-            const row =
-              entry.target;
+    changing =
+      true;
 
 
-            const rowIndex =
-              capabilityRows.indexOf(
-                row
-              );
+    section.classList.add(
+      "is-changing"
+    );
 
 
-            /*
-             * Small stagger between rows.
-             *
-             * If multiple rows enter the viewport at once,
-             * they still reveal as a sequence instead of
-             * appearing simultaneously.
-             */
+    window.setTimeout(
+      () => {
 
-            const delay =
-              Math.max(
-                0,
-                rowIndex
-              )
-              *
-              110;
+        const capability =
+          capabilities[
+            nextIndex
+          ];
 
 
-            window.setTimeout(
-              () => {
-
-                row.classList.add(
-                  "is-visible"
-                );
-
-              },
-              delay
-            );
+        title.innerHTML =
+          capability.title;
 
 
-            /*
-             * Play once.
-             */
+        description.textContent =
+          capability.description;
 
-            observer.unobserve(
-              row
+
+        number.textContent =
+          capability.number;
+
+
+        ghost.textContent =
+          capability.number;
+
+
+        renderTags(
+          capability.tags
+        );
+
+
+        indicators.forEach(
+          (
+            indicator,
+            index
+          ) => {
+
+            indicator.classList.toggle(
+              "is-active",
+              index ===
+                nextIndex
             );
 
           }
         );
 
+
+        progressLabel.textContent =
+          `${capability.number} — 04`;
+
+
+        activeIndex =
+          nextIndex;
+
+
+        section.classList.remove(
+          "is-changing"
+        );
+
+
+        window.setTimeout(
+          () => {
+
+            changing =
+              false;
+
+
+            /*
+             * User may have scrolled quickly through
+             * multiple states during the animation.
+             */
+
+            if (
+              requestedIndex !==
+              activeIndex
+            ) {
+
+              changeCapability(
+                requestedIndex
+              );
+
+            }
+
+          },
+          480
+        );
+
       },
-
-      {
-        threshold:
-          0.28,
-
-        rootMargin:
-          "0px 0px -8% 0px"
-      }
-
+      260
     );
 
+  }
 
-  capabilityRows.forEach(
-    (row) => {
 
-      observer.observe(
-        row
+  /* ==========================================================
+     SCROLL POSITION
+     ========================================================== */
+
+  function updateSequence() {
+
+    const rect =
+      section.getBoundingClientRect();
+
+
+    const scrollableDistance =
+      section.offsetHeight -
+      window.innerHeight;
+
+
+    let sectionProgress =
+      -rect.top /
+      scrollableDistance;
+
+
+    sectionProgress =
+      Math.max(
+        0,
+        Math.min(
+          1,
+          sectionProgress
+        )
+      );
+
+
+    /*
+     * Full progress bar.
+     */
+
+    progress.style.width =
+      `${sectionProgress * 100}%`;
+
+
+    /*
+     * Convert 0 → 1 progress into four states.
+     */
+
+    const nextIndex =
+      Math.min(
+        capabilities.length - 1,
+
+        Math.floor(
+          sectionProgress *
+          capabilities.length
+        )
+      );
+
+
+    requestedIndex =
+      nextIndex;
+
+
+    if (
+      nextIndex !==
+      activeIndex
+    ) {
+
+      changeCapability(
+        nextIndex
       );
 
     }
+
+
+    /*
+     * Giant background number movement.
+     *
+     * Gives the sequence a little continuous motion
+     * even between state changes.
+     */
+
+    const movement =
+      (
+        sectionProgress -
+        0.5
+      )
+      *
+      90;
+
+
+    ghost.style.transform =
+      `translate3d(0, ${movement}px, 0)`;
+
+  }
+
+
+  /* ==========================================================
+     RAF SCROLL LOOP
+     ========================================================== */
+
+  let ticking =
+    false;
+
+
+  function requestUpdate() {
+
+    if (ticking) {
+      return;
+    }
+
+
+    ticking =
+      true;
+
+
+    requestAnimationFrame(
+      () => {
+
+        updateSequence();
+
+
+        ticking =
+          false;
+
+      }
+    );
+
+  }
+
+
+  window.addEventListener(
+    "scroll",
+    requestUpdate,
+    {
+      passive:
+        true
+    }
   );
+
+
+  window.addEventListener(
+    "resize",
+    requestUpdate
+  );
+
+
+  renderTags(
+    capabilities[0].tags
+  );
+
+
+  updateSequence();
 
 })();
