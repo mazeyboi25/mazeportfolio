@@ -1496,342 +1496,208 @@ experimentCards.forEach((card) => {
 });
 
 /* ============================================================
-   CAPABILITIES — SCROLL-DRIVEN SEQUENCE
+   CAPABILITIES — SCROLL-DRIVEN RIGHT-SIDE SEQUENCE
+   The original left-side heading/graphic is never modified.
    ============================================================ */
 
 (() => {
-
   const section =
     document.querySelector(
-      ".capabilities-sequence"
+      ".capabilities--sequence"
     );
-
 
   if (!section) {
     return;
   }
 
-
   const title =
-    document.querySelector(
+    section.querySelector(
       "#capability-title"
     );
 
-
   const description =
-    document.querySelector(
+    section.querySelector(
       "#capability-description"
     );
 
-
   const tags =
-    document.querySelector(
+    section.querySelector(
       "#capability-tags"
     );
 
-
   const number =
-    document.querySelector(
+    section.querySelector(
       "#capability-number"
     );
 
-
-  const ghost =
-    document.querySelector(
-      "#capability-ghost"
-    );
-
-
   const progress =
-    document.querySelector(
+    section.querySelector(
       "#capability-progress"
     );
 
-
   const progressLabel =
-    document.querySelector(
+    section.querySelector(
       "#capability-progress-label"
     );
 
-
   const indicators =
     [
-      ...document.querySelectorAll(
+      ...section.querySelectorAll(
         "[data-step-indicator]"
       )
     ];
 
 
-  /* ==========================================================
-     CONTENT
-     ========================================================== */
-
   const capabilities = [
-
     {
-      number:
-        "01",
-
-      title:
-        "Front-end<br>Development",
-
-      description:
-        "Responsive interfaces, interaction systems, and performance-minded builds designed to work cleanly across desktop and mobile.",
-
-      tags: [
-        "HTML",
-        "CSS",
-        "JavaScript",
-        "Responsive UI"
-      ]
+      number: "01",
+      title: "Front-end<br>Development",
+      description: "Responsive interfaces, interaction systems, and performance-minded builds designed to work cleanly across desktop and mobile.",
+      tags: ["HTML", "CSS", "JavaScript", "Responsive UI"]
     },
 
-
     {
-      number:
-        "02",
-
-      title:
-        "UI / UX<br>Design",
-
-      description:
-        "Clear user flows, visual systems, and component-driven interface design focused on making complex interactions easier to understand.",
-
-      tags: [
-        "User Flows",
-        "Visual Systems",
-        "Mobile UI",
-        "Interaction Design"
-      ]
+      number: "02",
+      title: "UI / UX<br>Design",
+      description: "Clear user flows, visual systems, and component-driven interface design focused on making complex interactions easier to understand.",
+      tags: ["User Flows", "Visual Systems", "Mobile UI", "Interaction Design"]
     },
 
-
     {
-      number:
-        "03",
-
-      title:
-        "Information<br>Systems",
-
-      description:
-        "Practical systems for records, workflows, internal operations, databases, reporting, and everyday organizational processes.",
-
-      tags: [
-        "Supabase",
-        "PostgreSQL",
-        "Databases",
-        "Workflow Systems"
-      ]
+      number: "03",
+      title: "Information<br>Systems",
+      description: "Practical systems for records, workflows, internal operations, databases, reporting, and everyday organizational processes.",
+      tags: ["Supabase", "PostgreSQL", "Databases", "Workflow Systems"]
     },
 
-
     {
-      number:
-        "04",
-
-      title:
-        "Motion &amp;<br>Prototyping",
-
-      description:
-        "Sequence-driven animation, interaction studies, scroll behavior, and polished prototypes that give interfaces a stronger sense of response.",
-
-      tags: [
-        "GSAP",
-        "Anime.js",
-        "Scroll Motion",
-        "Prototyping"
-      ]
+      number: "04",
+      title: "Motion &amp;<br>Prototyping",
+      description: "Sequence-driven animation, interaction studies, scroll behavior, and polished prototypes that give interfaces a stronger sense of response.",
+      tags: ["GSAP", "Anime.js", "Scroll Motion", "Prototyping"]
     }
-
   ];
 
 
-  let activeIndex =
-    0;
+  let activeIndex = 0;
+  let pendingIndex = 0;
+  let changing = false;
 
 
-  let requestedIndex =
-    0;
-
-
-  let changing =
-    false;
-
-
-  /* ==========================================================
-     RENDER TAGS
-     ========================================================== */
-
-  function renderTags(
-    values
-  ) {
-
-    tags.innerHTML =
-      "";
-
+  function renderTags(values) {
+    tags.innerHTML = "";
 
     values.forEach(
       (value) => {
-
-        const tag =
+        const item =
           document.createElement(
             "span"
           );
 
-
-        tag.textContent =
+        item.textContent =
           value;
 
-
         tags.appendChild(
-          tag
+          item
         );
-
       }
     );
-
   }
 
 
-  /* ==========================================================
-     CHANGE STATE
-     ========================================================== */
+  function updateIndicators(index) {
+    indicators.forEach(
+      (indicator, indicatorIndex) => {
+        indicator.classList.toggle(
+          "is-active",
+          indicatorIndex === index
+        );
+      }
+    );
+  }
 
-  function changeCapability(
-    nextIndex
-  ) {
 
+  function changeCapability(nextIndex) {
     if (
-      nextIndex ===
-        activeIndex
+      nextIndex === activeIndex
       ||
       changing
     ) {
       return;
     }
 
-
-    changing =
-      true;
-
+    changing = true;
 
     section.classList.add(
       "is-changing"
     );
 
-
     window.setTimeout(
       () => {
-
-        const capability =
-          capabilities[
-            nextIndex
-          ];
-
+        const item =
+          capabilities[nextIndex];
 
         title.innerHTML =
-          capability.title;
-
+          item.title;
 
         description.textContent =
-          capability.description;
-
+          item.description;
 
         number.textContent =
-          capability.number;
-
-
-        ghost.textContent =
-          capability.number;
-
-
-        renderTags(
-          capability.tags
-        );
-
-
-        indicators.forEach(
-          (
-            indicator,
-            index
-          ) => {
-
-            indicator.classList.toggle(
-              "is-active",
-              index ===
-                nextIndex
-            );
-
-          }
-        );
-
+          item.number;
 
         progressLabel.textContent =
-          `${capability.number} — 04`;
+          `${item.number} — 04`;
 
+        renderTags(
+          item.tags
+        );
+
+        updateIndicators(
+          nextIndex
+        );
 
         activeIndex =
           nextIndex;
-
 
         section.classList.remove(
           "is-changing"
         );
 
-
         window.setTimeout(
           () => {
-
-            changing =
-              false;
-
-
-            /*
-             * User may have scrolled quickly through
-             * multiple states during the animation.
-             */
+            changing = false;
 
             if (
-              requestedIndex !==
-              activeIndex
+              pendingIndex !== activeIndex
             ) {
-
               changeCapability(
-                requestedIndex
+                pendingIndex
               );
-
             }
-
           },
-          480
+          420
         );
-
       },
-      260
+      220
     );
-
   }
 
 
-  /* ==========================================================
-     SCROLL POSITION
-     ========================================================== */
-
   function updateSequence() {
-
     const rect =
       section.getBoundingClientRect();
 
-
-    const scrollableDistance =
-      section.offsetHeight -
-      window.innerHeight;
-
+    const scrollDistance =
+      Math.max(
+        1,
+        section.offsetHeight -
+        window.innerHeight
+      );
 
     let sectionProgress =
       -rect.top /
-      scrollableDistance;
-
+      scrollDistance;
 
     sectionProgress =
       Math.max(
@@ -1842,115 +1708,65 @@ experimentCards.forEach((card) => {
         )
       );
 
-
-    /*
-     * Full progress bar.
-     */
-
     progress.style.width =
       `${sectionProgress * 100}%`;
-
-
-    /*
-     * Convert 0 → 1 progress into four states.
-     */
 
     const nextIndex =
       Math.min(
         capabilities.length - 1,
-
         Math.floor(
           sectionProgress *
           capabilities.length
         )
       );
 
-
-    requestedIndex =
+    pendingIndex =
       nextIndex;
 
-
     if (
-      nextIndex !==
-      activeIndex
+      nextIndex !== activeIndex
     ) {
-
       changeCapability(
         nextIndex
       );
-
     }
-
-
-    /*
-     * Giant background number movement.
-     *
-     * Gives the sequence a little continuous motion
-     * even between state changes.
-     */
-
-    const movement =
-      (
-        sectionProgress -
-        0.5
-      )
-      *
-      90;
-
-
-    ghost.style.transform =
-      `translate3d(0, ${movement}px, 0)`;
-
   }
 
 
-  /* ==========================================================
-     RAF SCROLL LOOP
-     ========================================================== */
-
-  let ticking =
+  let frameRequested =
     false;
 
 
-  function requestUpdate() {
-
-    if (ticking) {
+  function requestSequenceUpdate() {
+    if (frameRequested) {
       return;
     }
 
-
-    ticking =
+    frameRequested =
       true;
 
-
-    requestAnimationFrame(
+    window.requestAnimationFrame(
       () => {
-
         updateSequence();
 
-
-        ticking =
+        frameRequested =
           false;
-
       }
     );
-
   }
 
 
   window.addEventListener(
     "scroll",
-    requestUpdate,
+    requestSequenceUpdate,
     {
-      passive:
-        true
+      passive: true
     }
   );
 
-
   window.addEventListener(
     "resize",
-    requestUpdate
+    requestSequenceUpdate
   );
 
 
@@ -1958,7 +1774,6 @@ experimentCards.forEach((card) => {
     capabilities[0].tags
   );
 
-
+  updateIndicators(0);
   updateSequence();
-
 })();
