@@ -1496,141 +1496,143 @@ experimentCards.forEach((card) => {
 });
 
 /* ============================================================
-   CAPABILITY ROW INTERACTIONS
+   CAPABILITIES — SCROLL MOTION SEQUENCE
    ============================================================ */
 
 (() => {
 
   const capabilityRows =
-    document.querySelectorAll(
-      ".capability-row"
+    [
+      ...document.querySelectorAll(
+        "[data-capability]"
+      )
+    ];
+
+
+  if (!capabilityRows.length) {
+    return;
+  }
+
+
+  /*
+   * Reduced motion:
+   * show everything immediately.
+   */
+
+  const reducedMotion =
+    window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+
+  if (reducedMotion) {
+
+    capabilityRows.forEach(
+      (row) => {
+
+        row.classList.add(
+          "is-visible"
+        );
+
+      }
+    );
+
+
+    return;
+
+  }
+
+
+  /*
+   * Observe the capabilities section.
+   *
+   * Every row gets its own reveal when it enters
+   * the visible area.
+   */
+
+  const observer =
+    new IntersectionObserver(
+
+      (entries) => {
+
+        entries.forEach(
+          (entry) => {
+
+            if (
+              !entry.isIntersecting
+            ) {
+              return;
+            }
+
+
+            const row =
+              entry.target;
+
+
+            const rowIndex =
+              capabilityRows.indexOf(
+                row
+              );
+
+
+            /*
+             * Small stagger between rows.
+             *
+             * If multiple rows enter the viewport at once,
+             * they still reveal as a sequence instead of
+             * appearing simultaneously.
+             */
+
+            const delay =
+              Math.max(
+                0,
+                rowIndex
+              )
+              *
+              110;
+
+
+            window.setTimeout(
+              () => {
+
+                row.classList.add(
+                  "is-visible"
+                );
+
+              },
+              delay
+            );
+
+
+            /*
+             * Play once.
+             */
+
+            observer.unobserve(
+              row
+            );
+
+          }
+        );
+
+      },
+
+      {
+        threshold:
+          0.28,
+
+        rootMargin:
+          "0px 0px -8% 0px"
+      }
+
     );
 
 
   capabilityRows.forEach(
     (row) => {
 
-      const arrow =
-        row.querySelector(
-          ".capability-arrow"
-        );
-
-
-      const toggleRow = () => {
-
-        const isOpen =
-          row.classList.contains(
-            "is-open"
-          );
-
-
-        /*
-         * Close the other rows first.
-         *
-         * This keeps the section clean and works
-         * like a proper accordion.
-         */
-
-        capabilityRows.forEach(
-          (otherRow) => {
-
-            if (
-              otherRow ===
-              row
-            ) {
-              return;
-            }
-
-
-            otherRow.classList.remove(
-              "is-open"
-            );
-
-
-            otherRow.setAttribute(
-              "aria-expanded",
-              "false"
-            );
-
-
-            const otherArrow =
-              otherRow.querySelector(
-                ".capability-arrow"
-              );
-
-
-            if (otherArrow) {
-              otherArrow.textContent =
-                "↗";
-            }
-
-          }
-        );
-
-
-        /*
-         * Toggle selected row.
-         */
-
-        row.classList.toggle(
-          "is-open",
-          !isOpen
-        );
-
-
-        row.setAttribute(
-          "aria-expanded",
-          String(
-            !isOpen
-          )
-        );
-
-
-        if (arrow) {
-
-          arrow.textContent =
-            isOpen
-              ? "↗"
-              : "↙";
-
-        }
-
-      };
-
-
-      /*
-       * Mouse / touch
-       */
-
-      row.addEventListener(
-        "click",
-        toggleRow
-      );
-
-
-      /*
-       * Keyboard accessibility
-       */
-
-      row.addEventListener(
-        "keydown",
-        (event) => {
-
-          if (
-            event.key ===
-              "Enter"
-            ||
-            event.key ===
-              " "
-          ) {
-
-            event.preventDefault();
-
-            toggleRow();
-
-          }
-
-        }
+      observer.observe(
+        row
       );
 
     }
