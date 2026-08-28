@@ -6371,3 +6371,9 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   }
 
 }
+
+/* Remove non-functional arrows from expertise rows */
+.expertise__arrow,
+.service__arrow {
+  display: none;
+}
