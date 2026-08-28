@@ -1081,7 +1081,7 @@
 </div>
 </div>
 <!-- =====================================================
-     CAPABILITIES — SCROLL SEQUENCE
+     CAPABILITIES — STICKY SPLIT SEQUENCE
 ====================================================== -->
 
 <section
@@ -1091,111 +1091,178 @@
 
   <div class="capabilities-sequence__sticky">
 
-    <!-- Top label -->
-    <div class="capabilities-sequence__top">
-      <span>CAPABILITIES / 04</span>
-
-      <span id="capability-progress-label">
-        01 — 04
-      </span>
-    </div>
+    <div class="capabilities-layout">
 
 
-    <!-- Giant background number -->
-    <span
-      class="capabilities-sequence__ghost"
-      id="capability-ghost"
-      aria-hidden="true"
-    >
-      01
-    </span>
+      <!-- =================================================
+           LEFT SIDE — NEVER CHANGES
+      ================================================== -->
 
+      <div class="capabilities-intro">
 
-    <!-- Main content -->
-    <div class="capabilities-sequence__stage">
-
-      <div class="capabilities-sequence__number">
-        <span id="capability-number">
-          01
+        <span class="capabilities-intro__label">
+          CAPABILITIES
         </span>
-      </div>
 
 
-      <div class="capabilities-sequence__content">
-
-        <p class="capabilities-sequence__eyebrow">
-          WHAT I DO
-        </p>
-
-
-        <h2 id="capability-title">
-          Front-end<br>
-          Development
+        <h2>
+          Built across
+          <br>
+          disciplines.
         </h2>
 
 
-        <p
-          class="capabilities-sequence__description"
-          id="capability-description"
-        >
-          Responsive interfaces, interaction systems,
-          and performance-minded builds designed to
-          work cleanly across desktop and mobile.
+        <p>
+          Design, development, systems, and motion —
+          brought together through practical,
+          user-focused digital work.
         </p>
 
+      </div>
 
-        <div
-          class="capabilities-sequence__tags"
-          id="capability-tags"
+
+
+      <!-- =================================================
+           RIGHT SIDE — CHANGES WHILE SCROLLING
+      ================================================== -->
+
+      <div class="capabilities-stage">
+
+
+        <!-- Top meta -->
+
+        <div class="capabilities-sequence__top">
+
+          <span>
+            CAPABILITIES / 04
+          </span>
+
+
+          <span id="capability-progress-label">
+            01 — 04
+          </span>
+
+        </div>
+
+
+
+        <!-- Giant background number -->
+
+        <span
+          class="capabilities-sequence__ghost"
+          id="capability-ghost"
+          aria-hidden="true"
         >
-          <span>HTML</span>
-          <span>CSS</span>
-          <span>JavaScript</span>
-          <span>Responsive UI</span>
+          01
+        </span>
+
+
+
+        <!-- Main changing content -->
+
+        <div class="capabilities-sequence__content-wrap">
+
+
+          <div class="capabilities-sequence__number">
+
+            <span id="capability-number">
+              01
+            </span>
+
+          </div>
+
+
+
+          <div class="capabilities-sequence__content">
+
+            <p class="capabilities-sequence__eyebrow">
+              WHAT I DO
+            </p>
+
+
+            <h3 id="capability-title">
+              Front-end<br>
+              Development
+            </h3>
+
+
+            <p
+              class="capabilities-sequence__description"
+              id="capability-description"
+            >
+              Responsive interfaces, interaction systems,
+              and performance-minded builds designed to work
+              cleanly across desktop and mobile.
+            </p>
+
+
+            <div
+              class="capabilities-sequence__tags"
+              id="capability-tags"
+            >
+
+              <span>HTML</span>
+              <span>CSS</span>
+              <span>JavaScript</span>
+              <span>Responsive UI</span>
+
+            </div>
+
+          </div>
+
+
+
+          <!-- Steps -->
+
+          <div class="capabilities-sequence__steps">
+
+            <span
+              class="capability-step is-active"
+              data-step-indicator="0"
+            >
+              01
+            </span>
+
+
+            <span
+              class="capability-step"
+              data-step-indicator="1"
+            >
+              02
+            </span>
+
+
+            <span
+              class="capability-step"
+              data-step-indicator="2"
+            >
+              03
+            </span>
+
+
+            <span
+              class="capability-step"
+              data-step-indicator="3"
+            >
+              04
+            </span>
+
+          </div>
+
+        </div>
+
+
+
+        <!-- Progress -->
+
+        <div class="capabilities-sequence__progress">
+
+          <span id="capability-progress"></span>
+
         </div>
 
       </div>
 
-
-      <!-- Current step indicator -->
-      <div class="capabilities-sequence__steps">
-
-        <span
-          class="capability-step is-active"
-          data-step-indicator="0"
-        >
-          01
-        </span>
-
-        <span
-          class="capability-step"
-          data-step-indicator="1"
-        >
-          02
-        </span>
-
-        <span
-          class="capability-step"
-          data-step-indicator="2"
-        >
-          03
-        </span>
-
-        <span
-          class="capability-step"
-          data-step-indicator="3"
-        >
-          04
-        </span>
-
-      </div>
-
-    </div>
-
-
-    <!-- Progress line -->
-    <div class="capabilities-sequence__progress">
-      <span id="capability-progress"></span>
     </div>
 
   </div>
