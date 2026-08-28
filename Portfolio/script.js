@@ -1494,3 +1494,146 @@ experimentCards.forEach((card) => {
   );
 
 });
+
+/* ============================================================
+   CAPABILITY ROW INTERACTIONS
+   ============================================================ */
+
+(() => {
+
+  const capabilityRows =
+    document.querySelectorAll(
+      ".capability-row"
+    );
+
+
+  capabilityRows.forEach(
+    (row) => {
+
+      const arrow =
+        row.querySelector(
+          ".capability-arrow"
+        );
+
+
+      const toggleRow = () => {
+
+        const isOpen =
+          row.classList.contains(
+            "is-open"
+          );
+
+
+        /*
+         * Close the other rows first.
+         *
+         * This keeps the section clean and works
+         * like a proper accordion.
+         */
+
+        capabilityRows.forEach(
+          (otherRow) => {
+
+            if (
+              otherRow ===
+              row
+            ) {
+              return;
+            }
+
+
+            otherRow.classList.remove(
+              "is-open"
+            );
+
+
+            otherRow.setAttribute(
+              "aria-expanded",
+              "false"
+            );
+
+
+            const otherArrow =
+              otherRow.querySelector(
+                ".capability-arrow"
+              );
+
+
+            if (otherArrow) {
+              otherArrow.textContent =
+                "↗";
+            }
+
+          }
+        );
+
+
+        /*
+         * Toggle selected row.
+         */
+
+        row.classList.toggle(
+          "is-open",
+          !isOpen
+        );
+
+
+        row.setAttribute(
+          "aria-expanded",
+          String(
+            !isOpen
+          )
+        );
+
+
+        if (arrow) {
+
+          arrow.textContent =
+            isOpen
+              ? "↗"
+              : "↙";
+
+        }
+
+      };
+
+
+      /*
+       * Mouse / touch
+       */
+
+      row.addEventListener(
+        "click",
+        toggleRow
+      );
+
+
+      /*
+       * Keyboard accessibility
+       */
+
+      row.addEventListener(
+        "keydown",
+        (event) => {
+
+          if (
+            event.key ===
+              "Enter"
+            ||
+            event.key ===
+              " "
+          ) {
+
+            event.preventDefault();
+
+            toggleRow();
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+})();
