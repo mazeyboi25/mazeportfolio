@@ -6260,3 +6260,114 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   }
 
 }
+
+/* ============================================================
+   SMALL BUILDS — FULL SCREENSHOT VISIBILITY
+   Prevents project screenshots from being cropped.
+   ============================================================ */
+
+
+/*
+ * Give the preview a wider shape because all Small Builds
+ * screenshots are desktop website screenshots.
+ */
+
+.small-project__preview {
+  aspect-ratio: 16 / 9;
+}
+
+
+/*
+ * Keep the complete screenshot visible.
+ *
+ * IMPORTANT:
+ * object-fit: cover was cropping the left/right edges.
+ */
+
+.small-project__screen {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  background:
+    #08070f;
+}
+
+
+.small-project__screen img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
+
+  object-position:
+    center center;
+
+  transform:
+    none;
+}
+
+
+/*
+ * Don't zoom the screenshot on hover.
+ *
+ * The old scale(1.025) could cut off text again
+ * even after switching to object-fit: contain.
+ */
+
+.small-project__preview:hover
+.small-project__screen img {
+  transform:
+    none;
+
+  filter:
+    brightness(.94);
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 820px) {
+
+  .small-project__preview {
+    aspect-ratio:
+      16 / 9;
+  }
+
+
+  .small-project__screen img,
+  .small-project__preview:hover
+  .small-project__screen img {
+    width: 100%;
+    height: 100%;
+
+    object-fit:
+      contain;
+
+    object-position:
+      center center;
+
+    transform:
+      none;
+  }
+
+}
+
+
+/*
+ * Your existing CSS changes the previews to 1.36 on very
+ * small phones. Override that because it creates too much
+ * vertical empty space for desktop screenshots.
+ */
+
+@media (max-width: 480px) {
+
+  .small-project__preview {
+    aspect-ratio:
+      16 / 9;
+  }
+
+}
