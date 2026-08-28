@@ -817,8 +817,8 @@ function initProjectAccumulation() {
 }
 
 /* Certificate carousel — based on the MZA carousel supplied by Kyle.
-   Adapted to coexist with the portfolio's vertical scroll and to support a
-   single current certificate without pretending there are more credentials. */
+   Adapted to coexist with the portfolio's vertical scroll and support
+   multiple credentials with keyboard, drag, pagination, and auto-cycle. */
 class MzaCarousel {
   constructor(root, opts = {}) {
     if (!root) return;
