@@ -76,6 +76,7 @@ function fallbackReveal() {
     el.style.transform = 'none';
     el.style.opacity = '1';
   });
+  revealWorkShowcaseFallback();
 }
 
 function runIntroSequence() {
@@ -127,6 +128,9 @@ function runIntroSequence() {
     .add(() => {
       document.body.classList.remove('is-loading');
       lenis?.start();
+      if (hasGSAP) {
+        requestAnimationFrame(() => ScrollTrigger.refresh());
+      }
     })
     // Header and hero now share one uninterrupted timeline. There is no
     // class toggle / CSS keyframe handoff, which removes the refresh-like jump.
@@ -366,7 +370,7 @@ function initWorkShowcaseMotion() {
 
   gsap.registerPlugin(ScrollTrigger);
 
-  const flagshipCards = [...document.querySelectorAll('[data-motion="flagship"]')];
+  const flagshipCards = [...document.querySelectorAll('.project-list .project-card')];
 
   flagshipCards.forEach((card, index) => {
     const info = card.querySelector('.project-card__info');
@@ -387,6 +391,7 @@ function initWorkShowcaseMotion() {
       motionLayer.className = 'project-motion-layer';
       motionLayer.setAttribute('aria-hidden', 'true');
       motionLayer.innerHTML = `
+        <i class="project-motion-wipe"></i>
         <i class="project-motion-scan"></i>
         <i class="project-motion-corner project-motion-corner--tl"></i>
         <i class="project-motion-corner project-motion-corner--tr"></i>
@@ -396,6 +401,7 @@ function initWorkShowcaseMotion() {
       visual.appendChild(motionLayer);
     }
 
+    const wipe = motionLayer.querySelector('.project-motion-wipe');
     const scan = motionLayer.querySelector('.project-motion-scan');
     const corners = motionLayer.querySelectorAll('.project-motion-corner');
     const infoChildren = [...info.children];
@@ -426,6 +432,12 @@ function initWorkShowcaseMotion() {
     if (badge) gsap.set(badge, { opacity: 0, y: 10, scale: .92 });
     if (link) gsap.set(link, { '--project-link-progress': 0 });
     gsap.set(corners, { opacity: 0, scale: .45 });
+    if (wipe) {
+      gsap.set(wipe, {
+        scaleX: 1,
+        transformOrigin: direction > 0 ? '100% 50%' : '0% 50%'
+      });
+    }
     if (scan) gsap.set(scan, { xPercent: -165, opacity: 0 });
 
     const tl = gsap.timeline({
@@ -459,8 +471,17 @@ function initWorkShowcaseMotion() {
         y: 0,
         duration: .9,
         ease: 'power4.out'
-      }, '-=.62')
-      .to(corners, {
+      }, '-=.62');
+
+    if (wipe) {
+      tl.to(wipe, {
+        scaleX: 0,
+        duration: isMobileViewport ? .7 : .92,
+        ease: 'power4.inOut'
+      }, '-=.78');
+    }
+
+    tl.to(corners, {
         opacity: 1,
         scale: 1,
         duration: .38,
@@ -519,7 +540,7 @@ function initWorkShowcaseMotion() {
     }
   });
 
-  const smallCards = [...document.querySelectorAll('[data-motion="small-build"]')];
+  const smallCards = [...document.querySelectorAll('.small-builds__grid .small-project')];
 
   smallCards.forEach((card, index) => {
     const preview = card.querySelector('.small-project__preview');
@@ -617,6 +638,37 @@ function initWorkShowcaseMotion() {
         stagger: .045,
         ease: 'back.out(1.6)'
       }, '-=.28');
+  });
+
+  // The page boots behind a fixed loader. Refresh once the browser has had a
+  // frame to apply all project dimensions so ScrollTrigger never keeps a card
+  // hidden because of stale measurements.
+  requestAnimationFrame(() => {
+    ScrollTrigger.refresh();
+  });
+}
+
+function revealWorkShowcaseFallback() {
+  document.querySelectorAll('.project-list .project-card').forEach(card => {
+    card.classList.add('is-work-live');
+    card.querySelectorAll('.project-card__info > *, .project-card__visual, .project-screenshot-link, .project-browser-bar, .project-number, .project-live-badge').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      el.style.filter = 'none';
+      el.style.visibility = 'visible';
+    });
+  });
+
+  document.querySelectorAll('.small-builds__grid .small-project').forEach(card => {
+    card.classList.add('has-work-motion', 'is-work-live');
+    card.style.opacity = '1';
+    card.style.transform = 'none';
+    card.querySelectorAll('.small-project__preview, .small-project__screen, .small-project__top, .small-project__visit, .small-project__content > *, .small-project__tags span').forEach(el => {
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      el.style.filter = 'none';
+      el.style.visibility = 'visible';
+    });
   });
 }
 
