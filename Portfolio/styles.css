@@ -6715,9 +6715,11 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   gap: 125px;
 }
 
-/* Desktop: description first on the left, original preview size on the right. */
-.project-card,
-.project-card:nth-child(even) {
+/* Desktop: stagger the projects left/right like an editorial zig-zag.
+   Odd cards: description left / preview right.
+   Even cards: preview left / description right.
+   The preview column keeps the same original footprint. */
+.project-card {
   display: grid;
   grid-template-columns: minmax(290px, .72fr) minmax(0, 1.8fr);
   gap: 4vw;
@@ -6725,8 +6727,11 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   transform-style: preserve-3d;
 }
 
-.project-card__info,
-.project-card:nth-child(even) .project-card__info {
+.project-card:nth-child(even) {
+  grid-template-columns: minmax(0, 1.8fr) minmax(290px, .72fr);
+}
+
+.project-card__info {
   order: 1;
   min-height: 0;
   display: flex;
@@ -6734,6 +6739,10 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   justify-content: space-between;
   border-top: 1px solid var(--line);
   padding-top: 20px;
+}
+
+.project-card:nth-child(even) .project-card__info {
+  order: 2;
 }
 
 .project-card__info > div {
@@ -6754,10 +6763,13 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   padding: 18px 0;
 }
 
-.project-card__visual,
-.project-card:nth-child(even) .project-card__visual {
+.project-card__visual {
   order: 2;
   width: auto;
+}
+
+.project-card:nth-child(even) .project-card__visual {
+  order: 1;
 }
 
 /* Restore the old desktop screenshot size and perspective. */
@@ -6787,22 +6799,31 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
     gap: 90px !important;
   }
 
-  .project-card,
-  .project-card:nth-child(even) {
+  .project-card {
     grid-template-columns: minmax(240px, .72fr) minmax(0, 1.5fr);
     gap: 3.4vw !important;
   }
 
-  .project-card__info,
-  .project-card:nth-child(even) .project-card__info {
+  .project-card:nth-child(even) {
+    grid-template-columns: minmax(0, 1.5fr) minmax(240px, .72fr);
+  }
+
+  .project-card__info {
     order: 1;
     min-height: 0;
     padding-top: 18px;
   }
 
-  .project-card__visual,
-  .project-card:nth-child(even) .project-card__visual {
+  .project-card:nth-child(even) .project-card__info {
     order: 2;
+  }
+
+  .project-card__visual {
+    order: 2;
+  }
+
+  .project-card:nth-child(even) .project-card__visual {
+    order: 1;
   }
 
   .project-card__visual--screenshot,
