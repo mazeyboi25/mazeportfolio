@@ -196,8 +196,8 @@ function initScrollSequences() {
     });
   }
 
-  // Standard reveals
-  document.querySelectorAll('.reveal').forEach(el => {
+  // Standard reveals. Small Builds use their own staged reveal below.
+  document.querySelectorAll('.reveal:not(.small-project)').forEach(el => {
     gsap.to(el, {
       opacity: 1,
       y: 0,
@@ -274,45 +274,7 @@ function initScrollSequences() {
     });
   });
 
-  // Project cards: content establishes the case study first, then the live preview follows.
-  document.querySelectorAll('.project-card').forEach((card, index) => {
-    const visual = card.querySelector('.project-card__visual');
-    const info = card.querySelector('.project-card__info');
-    const art = visual.querySelector('.system-shot') || visual.querySelector('.system-demo') || visual.querySelector('.project-screenshot-link img') || visual.firstElementChild;
-
-    const projectTl = gsap.timeline({
-      scrollTrigger: { trigger: card, start: 'top 82%', once: true }
-    });
-
-    projectTl
-      .from(info.children, {
-        y: 22,
-        opacity: 0,
-        duration: .72,
-        stagger: .09,
-        ease: 'power3.out'
-      })
-      .from(visual, {
-        clipPath: 'inset(0 0 100% 0)',
-        duration: 1.0,
-        ease: 'power4.inOut'
-      }, '-=.22')
-      .from(art, {
-        scale: visual.classList.contains('project-card__visual--screenshot') ? 1.025 : 1.1,
-        opacity: .45,
-        duration: 1.05,
-        ease: 'power3.out'
-      }, '-=.58');
-
-    if (!isMobileViewport) {
-      gsap.to(art, {
-        yPercent: visual.classList.contains('project-card__visual--screenshot') ? 0 : (index % 2 ? -6 : 6),
-        scale: visual.classList.contains('project-card__visual--screenshot') ? 1 : 1.03,
-        ease: 'none',
-        scrollTrigger: { trigger: visual, start: 'top bottom', end: 'bottom top', scrub: 1.1 }
-      });
-    }
-  });
+  // Flagship and Small Builds use the dedicated cinematic work-motion system.
 
   // Capability rows cascade as a group when the system comes into view.
   gsap.fromTo('.capability-row',
@@ -389,6 +351,272 @@ function initPrincipleKinetic() {
     direction: 'alternate',
     loop: true,
     easing: 'easeInOutQuad'
+  });
+}
+
+
+/* ============================================================
+   WORK SHOWCASE MOTION
+   Cinematic reveals for Flagship Systems + Small Builds.
+   Desktop gets depth / directional movement; mobile keeps the
+   same sequencing with lighter transforms for smooth scrolling.
+   ============================================================ */
+function initWorkShowcaseMotion() {
+  if (!hasGSAP || reduceMotion) return;
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const flagshipCards = [...document.querySelectorAll('[data-motion="flagship"]')];
+
+  flagshipCards.forEach((card, index) => {
+    const info = card.querySelector('.project-card__info');
+    const visual = card.querySelector('.project-card__visual');
+    const screen = visual?.querySelector('.project-screenshot-link');
+    const browserBar = visual?.querySelector('.project-browser-bar');
+    const number = visual?.querySelector('.project-number');
+    const badge = visual?.querySelector('.project-live-badge');
+    const link = info?.querySelector('.project-link');
+
+    if (!info || !visual || !screen) return;
+
+    card.classList.add('has-work-motion');
+
+    let motionLayer = visual.querySelector('.project-motion-layer');
+    if (!motionLayer) {
+      motionLayer = document.createElement('span');
+      motionLayer.className = 'project-motion-layer';
+      motionLayer.setAttribute('aria-hidden', 'true');
+      motionLayer.innerHTML = `
+        <i class="project-motion-scan"></i>
+        <i class="project-motion-corner project-motion-corner--tl"></i>
+        <i class="project-motion-corner project-motion-corner--tr"></i>
+        <i class="project-motion-corner project-motion-corner--bl"></i>
+        <i class="project-motion-corner project-motion-corner--br"></i>
+      `;
+      visual.appendChild(motionLayer);
+    }
+
+    const scan = motionLayer.querySelector('.project-motion-scan');
+    const corners = motionLayer.querySelectorAll('.project-motion-corner');
+    const infoChildren = [...info.children];
+    const direction = index % 2 === 0 ? 1 : -1;
+
+    gsap.set(infoChildren, {
+      opacity: 0,
+      y: isMobileViewport ? 24 : 36
+    });
+
+    gsap.set(visual, {
+      opacity: 0,
+      y: isMobileViewport ? 34 : 0,
+      x: isMobileViewport ? 0 : 74 * direction,
+      scale: isMobileViewport ? .97 : .94,
+      rotateY: isMobileViewport ? 0 : -4.5 * direction,
+      transformPerspective: 1500,
+      transformOrigin: '50% 50%'
+    });
+
+    gsap.set(screen, {
+      scale: .975,
+      y: isMobileViewport ? 14 : 18
+    });
+
+    if (browserBar) gsap.set(browserBar, { opacity: 0, y: -9 });
+    if (number) gsap.set(number, { opacity: 0, scale: .55, rotation: -10 * direction });
+    if (badge) gsap.set(badge, { opacity: 0, y: 10, scale: .92 });
+    if (link) gsap.set(link, { '--project-link-progress': 0 });
+    gsap.set(corners, { opacity: 0, scale: .45 });
+    if (scan) gsap.set(scan, { xPercent: -165, opacity: 0 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: card,
+        start: isMobileViewport ? 'top 88%' : 'top 80%',
+        once: true
+      },
+      defaults: { ease: 'power3.out' },
+      onComplete: () => card.classList.add('is-work-live')
+    });
+
+    tl
+      .to(infoChildren, {
+        opacity: 1,
+        y: 0,
+        duration: .72,
+        stagger: .095
+      })
+      .to(visual, {
+        opacity: 1,
+        x: 0,
+        y: 0,
+        scale: 1,
+        rotateY: 0,
+        duration: isMobileViewport ? .78 : 1.05,
+        ease: 'power4.out'
+      }, '-=.36')
+      .to(screen, {
+        scale: 1,
+        y: 0,
+        duration: .9,
+        ease: 'power4.out'
+      }, '-=.62')
+      .to(corners, {
+        opacity: 1,
+        scale: 1,
+        duration: .38,
+        stagger: .055,
+        ease: 'back.out(1.8)'
+      }, '-=.56');
+
+    if (browserBar) {
+      tl.to(browserBar, { opacity: 1, y: 0, duration: .4 }, '-=.48');
+    }
+
+    if (number) {
+      tl.to(number, {
+        opacity: 1,
+        scale: 1,
+        rotation: 0,
+        duration: .45,
+        ease: 'back.out(2)'
+      }, '-=.42');
+    }
+
+    if (badge) {
+      tl.to(badge, { opacity: 1, y: 0, scale: 1, duration: .42 }, '-=.38');
+    }
+
+    if (link) {
+      tl.to(link, { '--project-link-progress': 1, duration: .55 }, '-=.44');
+    }
+
+    if (scan) {
+      tl.to(scan, {
+        opacity: .82,
+        duration: .08
+      }, '-=.26')
+      .to(scan, {
+        xPercent: 720,
+        opacity: 0,
+        duration: isMobileViewport ? .72 : .92,
+        ease: 'power2.inOut'
+      }, '<');
+    }
+
+    // A very light opposing drift gives the alternating case-study layout
+    // depth without changing its actual size or position in the grid.
+    if (!isMobileViewport) {
+      gsap.to(visual, {
+        yPercent: index % 2 === 0 ? -2.4 : 2.4,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: card,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 1.25
+        }
+      });
+    }
+  });
+
+  const smallCards = [...document.querySelectorAll('[data-motion="small-build"]')];
+
+  smallCards.forEach((card, index) => {
+    const preview = card.querySelector('.small-project__preview');
+    const screen = card.querySelector('.small-project__screen');
+    const top = card.querySelector('.small-project__top');
+    const visit = card.querySelector('.small-project__visit');
+    const content = card.querySelector('.small-project__content');
+    const tags = [...card.querySelectorAll('.small-project__tags span')];
+
+    if (!preview || !screen || !content) return;
+
+    // The generic .reveal state is intentionally bypassed for these cards.
+    gsap.set(card, { opacity: 1, y: 0 });
+    card.classList.add('has-work-motion');
+
+    let scan = preview.querySelector('.small-project__scan-beam');
+    if (!scan) {
+      scan = document.createElement('span');
+      scan.className = 'small-project__scan-beam';
+      scan.setAttribute('aria-hidden', 'true');
+      preview.appendChild(scan);
+    }
+
+    gsap.set(preview, {
+      opacity: 0,
+      y: isMobileViewport ? 34 : 58,
+      scale: isMobileViewport ? .975 : .94,
+      rotateX: isMobileViewport ? 0 : 7,
+      transformPerspective: 1200,
+      transformOrigin: '50% 100%'
+    });
+
+    gsap.set(screen, {
+      opacity: .45,
+      scale: .985
+    });
+
+    if (top) gsap.set(top, { opacity: 0, y: -12 });
+    if (visit) gsap.set(visit, { opacity: 0, y: 10 });
+
+    const contentParts = [...content.children].filter(el => !el.classList.contains('small-project__tags'));
+    gsap.set(contentParts, { opacity: 0, y: 24 });
+    gsap.set(tags, { opacity: 0, y: 10, scale: .96 });
+    gsap.set(scan, { xPercent: -230, opacity: 0 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: card,
+        start: isMobileViewport ? 'top 90%' : 'top 84%',
+        once: true
+      },
+      defaults: { ease: 'power3.out' },
+      delay: !isMobileViewport && index % 2 ? .08 : 0,
+      onComplete: () => card.classList.add('is-work-live')
+    });
+
+    tl
+      .to(preview, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        rotateX: 0,
+        duration: isMobileViewport ? .72 : .9,
+        ease: 'power4.out'
+      })
+      .to(screen, {
+        opacity: 1,
+        scale: 1,
+        duration: .72,
+        ease: 'power3.out'
+      }, '-=.5');
+
+    if (top) tl.to(top, { opacity: 1, y: 0, duration: .38 }, '-=.47');
+    if (visit) tl.to(visit, { opacity: 1, y: 0, duration: .38 }, '-=.38');
+
+    tl
+      .to(scan, { opacity: .72, duration: .06 }, '-=.34')
+      .to(scan, {
+        xPercent: 680,
+        opacity: 0,
+        duration: isMobileViewport ? .68 : .82,
+        ease: 'power2.inOut'
+      }, '<')
+      .to(contentParts, {
+        opacity: 1,
+        y: 0,
+        duration: .56,
+        stagger: .07
+      }, '-=.48')
+      .to(tags, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: .34,
+        stagger: .045,
+        ease: 'back.out(1.6)'
+      }, '-=.28');
   });
 }
 
@@ -709,6 +937,7 @@ async function bootPortfolio() {
 
     initPrincipleKinetic();
     initScrollSequences();
+    initWorkShowcaseMotion();
     initProjectAccumulation();
     initPointerLayer();
     initHeroMapPointer();

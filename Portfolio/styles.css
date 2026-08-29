@@ -6911,3 +6911,291 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
     bottom: 7px;
   }
 }
+
+/* ============================================================
+   WORK SHOWCASE MOTION — FLAGSHIP + SMALL BUILDS
+   Added as a final override so the existing project sizing and
+   alternating desktop layout remain untouched.
+   ============================================================ */
+
+/* ---------- Flagship systems ---------- */
+.project-card.has-work-motion {
+  perspective: 1600px;
+}
+
+.project-card.has-work-motion .project-card__visual {
+  transition:
+    border-color .45s ease,
+    box-shadow .55s cubic-bezier(.16,1,.3,1),
+    background-color .45s ease;
+}
+
+.project-card.has-work-motion:hover .project-card__visual {
+  border-color: rgba(171, 151, 255, .28);
+  box-shadow:
+    0 34px 90px rgba(0, 0, 0, .24),
+    0 0 0 1px rgba(126, 98, 255, .035);
+}
+
+.project-motion-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.project-motion-scan {
+  position: absolute;
+  left: -18%;
+  top: 0;
+  width: 136%;
+  height: 2px;
+  opacity: 0;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(138, 92, 255, .12) 18%,
+      rgba(214, 204, 255, .96) 48%,
+      rgba(83, 214, 255, .58) 58%,
+      transparent 100%
+    );
+  box-shadow:
+    0 0 12px rgba(145, 116, 255, .72),
+    0 0 34px rgba(83, 214, 255, .22);
+  transform: translateY(-2px);
+}
+
+.project-motion-corner {
+  position: absolute;
+  width: 27px;
+  height: 27px;
+  opacity: 0;
+  filter: drop-shadow(0 0 7px rgba(137, 105, 255, .25));
+  transition:
+    border-color .35s ease,
+    filter .35s ease;
+}
+
+.project-motion-corner--tl {
+  top: 12px;
+  left: 12px;
+  border-top: 1px solid rgba(205, 193, 255, .58);
+  border-left: 1px solid rgba(205, 193, 255, .58);
+}
+
+.project-motion-corner--tr {
+  top: 12px;
+  right: 12px;
+  border-top: 1px solid rgba(205, 193, 255, .58);
+  border-right: 1px solid rgba(205, 193, 255, .58);
+}
+
+.project-motion-corner--bl {
+  bottom: 12px;
+  left: 12px;
+  border-bottom: 1px solid rgba(205, 193, 255, .58);
+  border-left: 1px solid rgba(205, 193, 255, .58);
+}
+
+.project-motion-corner--br {
+  right: 12px;
+  bottom: 12px;
+  border-right: 1px solid rgba(205, 193, 255, .58);
+  border-bottom: 1px solid rgba(205, 193, 255, .58);
+}
+
+.project-card.is-work-live:hover .project-motion-corner {
+  border-color: rgba(223, 214, 255, .92);
+  filter: drop-shadow(0 0 10px rgba(137, 105, 255, .5));
+}
+
+.project-card.has-work-motion .project-number {
+  transition:
+    color .3s ease,
+    text-shadow .3s ease;
+}
+
+.project-card.has-work-motion:hover .project-number {
+  color: rgba(220, 211, 255, .84);
+  text-shadow: 0 0 16px rgba(138, 92, 255, .34);
+}
+
+.project-card.has-work-motion .project-link {
+  --project-link-progress: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card.has-work-motion .project-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--purple), var(--cyan), transparent 88%);
+  transform: scaleX(var(--project-link-progress));
+  transform-origin: left center;
+  opacity: .68;
+}
+
+.project-card.has-work-motion .project-link span {
+  transition:
+    transform .35s cubic-bezier(.16,1,.3,1),
+    color .3s ease;
+}
+
+.project-card.has-work-motion .project-link:hover span {
+  transform: translate(4px, -4px) rotate(3deg);
+  color: #cfc2ff;
+}
+
+.project-card.is-work-live .project-live-badge b {
+  display: inline-block;
+  animation: flagshipArrowDrift 2.8s ease-in-out infinite;
+}
+
+@keyframes flagshipArrowDrift {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(2px, -2px); }
+}
+
+/* ---------- Small builds ---------- */
+.small-project.has-work-motion {
+  opacity: 1;
+  transform: none;
+}
+
+.small-project.has-work-motion .small-project__preview {
+  isolation: isolate;
+  transition:
+    border-color .42s ease,
+    box-shadow .5s cubic-bezier(.16,1,.3,1);
+}
+
+.small-project.has-work-motion .small-project__content {
+  transition: transform .5s cubic-bezier(.16,1,.3,1);
+}
+
+.small-project.has-work-motion:hover .small-project__content {
+  transform: translateY(-3px);
+}
+
+.small-project.has-work-motion:hover .small-project__preview {
+  border-color: rgba(176, 155, 255, .34);
+  box-shadow:
+    0 34px 80px rgba(0, 0, 0, .25),
+    0 0 0 1px rgba(137, 104, 255, .05);
+}
+
+.small-project__scan-beam {
+  position: absolute;
+  z-index: 7;
+  top: -18%;
+  bottom: -18%;
+  left: -25%;
+  width: 16%;
+  opacity: 0;
+  pointer-events: none;
+  transform: skewX(-14deg);
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, .035) 20%,
+      rgba(186, 168, 255, .22) 48%,
+      rgba(83, 214, 255, .08) 72%,
+      transparent
+    );
+  filter: blur(.2px);
+}
+
+.small-project.has-work-motion .small-project__name-row h4 {
+  transition:
+    color .35s ease,
+    text-shadow .35s ease,
+    letter-spacing .45s cubic-bezier(.16,1,.3,1);
+}
+
+.small-project.has-work-motion:hover .small-project__name-row h4 {
+  color: #ddd4ff;
+  text-shadow: 0 0 22px rgba(128, 94, 255, .17);
+  letter-spacing: -.052em;
+}
+
+.small-project.has-work-motion .small-project__number,
+.small-project.has-work-motion .small-project__status,
+.small-project.has-work-motion .small-project__visit {
+  transition:
+    border-color .35s ease,
+    background-color .35s ease,
+    box-shadow .35s ease,
+    color .35s ease;
+}
+
+.small-project.has-work-motion:hover .small-project__number,
+.small-project.has-work-motion:hover .small-project__status {
+  border-color: rgba(193, 177, 255, .34);
+  box-shadow: 0 0 22px rgba(112, 78, 255, .09);
+}
+
+.small-project.has-work-motion .small-project__tags span {
+  transition:
+    transform .34s cubic-bezier(.16,1,.3,1),
+    color .3s ease,
+    border-color .3s ease,
+    background-color .3s ease;
+}
+
+.small-project.has-work-motion:hover .small-project__tags span {
+  transform: translateY(-2px);
+}
+
+.small-project.has-work-motion:hover .small-project__tags span:nth-child(2) { transition-delay: .025s; }
+.small-project.has-work-motion:hover .small-project__tags span:nth-child(3) { transition-delay: .05s; }
+.small-project.has-work-motion:hover .small-project__tags span:nth-child(4) { transition-delay: .075s; }
+
+.small-project.is-work-live .small-project__status i {
+  animation: smallBuildStatusPulse 2.2s ease-out infinite;
+}
+
+@keyframes smallBuildStatusPulse {
+  0% { box-shadow: 0 0 0 0 rgba(107, 245, 160, .42); }
+  65%, 100% { box-shadow: 0 0 0 8px rgba(107, 245, 160, 0); }
+}
+
+/* Mobile keeps the scroll choreography but drops persistent hover motion. */
+@media (max-width: 820px) {
+  .project-motion-corner {
+    width: 19px;
+    height: 19px;
+  }
+
+  .project-motion-corner--tl,
+  .project-motion-corner--tr { top: 7px; }
+  .project-motion-corner--bl,
+  .project-motion-corner--br { bottom: 7px; }
+  .project-motion-corner--tl,
+  .project-motion-corner--bl { left: 7px; }
+  .project-motion-corner--tr,
+  .project-motion-corner--br { right: 7px; }
+
+  .small-project.has-work-motion:hover .small-project__content,
+  .small-project.has-work-motion:hover .small-project__tags span {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-card.is-work-live .project-live-badge b,
+  .small-project.is-work-live .small-project__status i {
+    animation: none !important;
+  }
+
+  .project-motion-layer,
+  .small-project__scan-beam {
+    display: none !important;
+  }
+}
