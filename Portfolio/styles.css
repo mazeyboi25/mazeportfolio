@@ -7273,16 +7273,6 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
-  border: 1px solid transparent;
-  background:
-    linear-gradient(135deg, rgba(183,168,255,.28), transparent 20%, transparent 76%, rgba(83,214,255,.16)) border-box;
-  .small-project.has-work-motion .small-project__preview::after {
-  content: "";
-  position: absolute;
-  z-index: 5;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
 
   background:
     linear-gradient(
@@ -7309,15 +7299,6 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
       transparent 42%
     ) bottom right / 1px 100% no-repeat;
 
-  opacity: 0;
-  transition: opacity .45s ease;
-}
-
-.small-project.is-work-live .small-project__preview::after {
-  opacity: .42;
-}
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
   opacity: 0;
   transition: opacity .45s ease;
 }
@@ -7468,5 +7449,67 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   .project-motion-scan,
   .small-project__scan-beam {
     box-shadow: none !important;
+  }
+}
+
+/* =========================================================
+   FINAL CONTACT / FOOTER SPACING
+   Keep footer visible, remove excessive empty space.
+   ========================================================= */
+
+.footer {
+  display: flex !important;
+}
+
+@media (min-width: 821px) {
+
+  .contact {
+    min-height: auto !important;
+    padding-bottom: 24px !important;
+  }
+
+  .contact__main {
+    flex: 0 0 auto !important;
+    padding-bottom: 24px !important;
+  }
+
+  .commend-wrap {
+    padding-top: 28px !important;
+    padding-bottom: 34px !important;
+  }
+
+  .footer {
+    width: 100%;
+    margin-top: 0 !important;
+    padding-top: 22px !important;
+    padding-bottom: 4px !important;
+
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 30px;
+
+    border-top: 1px solid var(--line);
+  }
+
+  .footer p {
+    margin: 0;
+  }
+
+  .footer__right {
+    width: auto !important;
+    margin-left: auto;
+
+    display: flex;
+    align-items: center !important;
+    justify-content: flex-end !important;
+  }
+
+  .footer__top-link {
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
   }
 }

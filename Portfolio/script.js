@@ -8,6 +8,24 @@ const isCoarsePointer = window.matchMedia('(pointer: coarse)').matches;
 
 document.getElementById('year').textContent = new Date().getFullYear();
 
+function syncPortfolioStats() {
+  const sources = {
+    flagship: document.querySelectorAll('.project-list .project-card').length,
+    small: document.querySelectorAll('.small-builds__grid .small-project').length,
+    certificates: document.querySelectorAll('#mzaCarousel .mzaCarousel-slide').length
+  };
+
+  document.querySelectorAll('.stat__value[data-stat-source]').forEach((el) => {
+    const key = el.dataset.statSource;
+    const count = sources[key];
+
+    if (!Number.isFinite(count)) return;
+
+    el.dataset.count = String(count).padStart(2, '0');
+  });
+}
+
+
 function initLenis() {
   if (!hasLenis || reduceMotion) return null;
 
@@ -201,7 +219,7 @@ function initScrollSequences() {
   }
 
   // Standard reveals. Small Builds use their own staged reveal below.
-  document.querySelectorAll('.reveal:not(.small-project)').forEach(el => {
+  document.querySelectorAll('.reveal:not(.small-project):not(.principle__note)').forEach(el => {
     gsap.to(el, {
       opacity: 1,
       y: 0,
@@ -289,13 +307,53 @@ function initScrollSequences() {
     }
   );
 
-  // Quote sequence fills the viewport like a scene transition.
-  const quoteTl = gsap.timeline({
-    scrollTrigger: { trigger: '.principle', start: 'top 55%', once: true }
-  });
-  quoteTl
-    .from('.quote-line > span', { yPercent: 115, opacity: 0, duration: 1, stagger: .11, ease: 'power4.out', immediateRender: false })
-    .from('.principle__note', { opacity: 0, y: 20, duration: .65, immediateRender: false }, '-=.35');
+  // Principles: establish the hidden start state BEFORE ScrollTrigger can fire.
+  // Using explicit set() + to() prevents the text from painting once in its
+  // finished state and then snapping back to the beginning of the animation.
+  const principle = document.querySelector('.principle');
+  const principleQuoteLines = principle
+    ? [...principle.querySelectorAll('.principle__quote .quote-line > span')]
+    : [];
+  const principleNote = principle?.querySelector('.principle__note');
+
+  if (principle && principleQuoteLines.length) {
+    gsap.set(principleQuoteLines, {
+      yPercent: 115,
+      opacity: 0
+    });
+
+    if (principleNote) {
+      gsap.set(principleNote, {
+        opacity: 0,
+        y: 20
+      });
+    }
+
+    const quoteTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: principle,
+        start: 'top 72%',
+        once: true
+      }
+    });
+
+    quoteTl.to(principleQuoteLines, {
+      yPercent: 0,
+      opacity: 1,
+      duration: .92,
+      stagger: .1,
+      ease: 'power4.out'
+    });
+
+    if (principleNote) {
+      quoteTl.to(principleNote, {
+        opacity: 1,
+        y: 0,
+        duration: .58,
+        ease: 'power3.out'
+      }, '-=.32');
+    }
+  }
 
   // Contact orb and heading drift at different rates for depth.
   gsap.fromTo('.contact__orb',
@@ -371,9 +429,17 @@ function initWorkShowcaseMotion() {
   const flagshipCards = [...document.querySelectorAll('.project-list .project-card')];
   const smallCards = [...document.querySelectorAll('.small-builds__grid .small-project')];
 
-  const playFlagship = (card, index) => {
-    if (card.dataset.workAnimated === 'true') return;
-    card.dataset.workAnimated = 'true';
+  const flagshipStates = new WeakMap();
+  const smallStates = new WeakMap();
+
+  /*
+   * IMPORTANT:
+   * Every card is prepared immediately while the loader is still covering
+   * the page. IntersectionObserver only STARTS the animation later.
+   * This removes the one-frame "visible -> hidden -> animate" flash.
+   */
+  const prepareFlagship = (card, index) => {
+    if (flagshipStates.has(card)) return flagshipStates.get(card);
 
     const info = card.querySelector('.project-card__info');
     const visual = card.querySelector('.project-card__visual');
@@ -384,8 +450,10 @@ function initWorkShowcaseMotion() {
     const link = info?.querySelector('.project-link');
 
     if (!info || !visual || !screen) {
+      const state = { invalid: true };
+      flagshipStates.set(card, state);
       card.classList.add('is-work-live');
-      return;
+      return state;
     }
 
     card.classList.add('has-work-motion');
@@ -412,20 +480,33 @@ function initWorkShowcaseMotion() {
     const infoChildren = [...info.children];
     const direction = index % 2 === 0 ? 1 : -1;
 
-    gsap.set(infoChildren, { opacity: 0, y: isMobileViewport ? 18 : 24 });
+    // Initial state is committed NOW, not when the card enters the viewport.
+    gsap.set(infoChildren, {
+      opacity: 0,
+      y: isMobileViewport ? 18 : 24
+    });
+
     gsap.set(visual, {
       opacity: 0,
       x: isMobileViewport ? 0 : 34 * direction,
       y: isMobileViewport ? 24 : 0,
       scale: .985
     });
-    gsap.set(screen, { y: 8, scale: .992 });
+
+    gsap.set(screen, {
+      y: 8,
+      scale: .992
+    });
 
     if (browserBar) gsap.set(browserBar, { opacity: 0, y: -6 });
     if (number) gsap.set(number, { opacity: 0, scale: .8 });
     if (badge) gsap.set(badge, { opacity: 0, y: 7 });
     if (link) gsap.set(link, { '--project-link-progress': 0 });
-    gsap.set(corners, { opacity: 0, scale: .8 });
+
+    gsap.set(corners, {
+      opacity: 0,
+      scale: .8
+    });
 
     if (wipe) {
       gsap.set(wipe, {
@@ -434,36 +515,78 @@ function initWorkShowcaseMotion() {
       });
     }
 
-    if (scan) gsap.set(scan, { xPercent: -170, opacity: 0 });
+    if (scan) {
+      gsap.set(scan, {
+        xPercent: -170,
+        opacity: 0
+      });
+    }
+
+    const state = {
+      invalid: false,
+      infoChildren,
+      visual,
+      screen,
+      browserBar,
+      number,
+      badge,
+      link,
+      wipe,
+      scan,
+      corners
+    };
+
+    flagshipStates.set(card, state);
+    return state;
+  };
+
+  const playFlagship = (card, index) => {
+    if (card.dataset.workAnimated === 'true') return;
+    card.dataset.workAnimated = 'true';
+
+    const state = prepareFlagship(card, index);
+    if (!state || state.invalid) return;
+
+    const {
+      infoChildren,
+      visual,
+      screen,
+      browserBar,
+      number,
+      badge,
+      link,
+      wipe,
+      scan,
+      corners
+    } = state;
 
     const tl = gsap.timeline({
       defaults: { ease: 'power3.out' },
       onComplete: () => {
         card.classList.add('is-work-live');
-        gsap.set([...infoChildren, visual, screen], { clearProps: 'willChange' });
       }
     });
 
-    tl
-      .to(infoChildren, {
-        opacity: 1,
-        y: 0,
-        duration: .5,
-        stagger: .055
-      })
-      .to(visual, {
-        opacity: 1,
-        x: 0,
-        y: 0,
-        scale: 1,
-        duration: .64,
-        ease: 'power4.out'
-      }, '-=.25')
-      .to(screen, {
-        y: 0,
-        scale: 1,
-        duration: .5
-      }, '-=.4');
+    // Description starts first, then the preview follows smoothly.
+    tl.to(infoChildren, {
+      opacity: 1,
+      y: 0,
+      duration: .5,
+      stagger: .055
+    })
+    .to(visual, {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      scale: 1,
+      duration: .64,
+      ease: 'power4.out'
+    }, '-=.25')
+    .to(screen, {
+      y: 0,
+      scale: 1,
+      duration: .5
+    }, '-=.4');
 
     if (wipe) {
       tl.to(wipe, {
@@ -496,9 +619,8 @@ function initWorkShowcaseMotion() {
     }
   };
 
-  const playSmall = (card) => {
-    if (card.dataset.workAnimated === 'true') return;
-    card.dataset.workAnimated = 'true';
+  const prepareSmall = (card) => {
+    if (smallStates.has(card)) return smallStates.get(card);
 
     const preview = card.querySelector('.small-project__preview');
     const screen = card.querySelector('.small-project__screen');
@@ -508,12 +630,14 @@ function initWorkShowcaseMotion() {
     const tags = [...card.querySelectorAll('.small-project__tags span')];
 
     if (!preview || !screen || !content) {
+      const state = { invalid: true };
+      smallStates.set(card, state);
       card.classList.add('is-work-live');
-      return;
+      return state;
     }
 
-    gsap.set(card, { opacity: 1, y: 0 });
     card.classList.add('has-work-motion');
+    gsap.set(card, { opacity: 1, y: 0 });
 
     let scan = preview.querySelector('.small-project__scan-beam');
     if (!scan) {
@@ -527,45 +651,80 @@ function initWorkShowcaseMotion() {
       el => !el.classList.contains('small-project__tags')
     );
 
+    // Same pre-staging rule as flagship cards: hide before observation.
     gsap.set(preview, {
       opacity: 0,
       y: isMobileViewport ? 22 : 34,
       scale: .985
     });
-    gsap.set(screen, { opacity: .68, scale: .994 });
+
+    gsap.set(screen, {
+      opacity: .68,
+      scale: .994
+    });
+
     if (top) gsap.set(top, { opacity: 0, y: -7 });
     if (visit) gsap.set(visit, { opacity: 0, y: 7 });
     gsap.set(contentParts, { opacity: 0, y: 16 });
     gsap.set(tags, { opacity: 0, y: 7 });
     gsap.set(scan, { xPercent: -210, opacity: 0 });
 
+    const state = {
+      invalid: false,
+      preview,
+      screen,
+      top,
+      visit,
+      contentParts,
+      tags,
+      scan
+    };
+
+    smallStates.set(card, state);
+    return state;
+  };
+
+  const playSmall = (card) => {
+    if (card.dataset.workAnimated === 'true') return;
+    card.dataset.workAnimated = 'true';
+
+    const state = prepareSmall(card);
+    if (!state || state.invalid) return;
+
+    const {
+      preview,
+      screen,
+      top,
+      visit,
+      contentParts,
+      tags,
+      scan
+    } = state;
+
     const tl = gsap.timeline({
       defaults: { ease: 'power3.out' },
       onComplete: () => {
         card.classList.add('is-work-live');
-        gsap.set([preview, screen, ...contentParts, ...tags], { clearProps: 'willChange' });
       }
     });
 
-    tl
-      .to(preview, {
-        opacity: 1,
-        y: 0,
-        scale: 1,
-        duration: .56,
-        ease: 'power4.out'
-      })
-      .to(screen, {
-        opacity: 1,
-        scale: 1,
-        duration: .4
-      }, '-=.34');
+    tl.to(preview, {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      duration: .56,
+      ease: 'power4.out'
+    })
+    .to(screen, {
+      opacity: 1,
+      scale: 1,
+      duration: .4
+    }, '-=.34');
 
     if (top) tl.to(top, { opacity: 1, y: 0, duration: .24 }, '-=.28');
     if (visit) tl.to(visit, { opacity: 1, y: 0, duration: .24 }, '-=.24');
 
-    tl
-      .to(scan, { opacity: .46, duration: .04 }, '-=.2')
+    tl.to(scan, { opacity: .46, duration: .04 }, '-=.2')
       .to(scan, {
         xPercent: 610,
         opacity: 0,
@@ -585,6 +744,10 @@ function initWorkShowcaseMotion() {
         stagger: .025
       }, '-=.18');
   };
+
+  // Pre-stage ALL cards immediately. This is the key anti-flash fix.
+  flagshipCards.forEach(prepareFlagship);
+  smallCards.forEach(prepareSmall);
 
   if ('IntersectionObserver' in window) {
     const observer = new IntersectionObserver(
@@ -987,6 +1150,7 @@ async function bootPortfolio() {
   }
 
   try {
+    syncPortfolioStats();
     initCopyActions();
     initSystemDemos();
     initMobileMenu();
