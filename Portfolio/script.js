@@ -274,24 +274,35 @@ function initScrollSequences() {
     });
   });
 
-  // Project cards: visual enters first, internal art follows, text completes sequence.
+  // Project cards: content establishes the case study first, then the live preview follows.
   document.querySelectorAll('.project-card').forEach((card, index) => {
     const visual = card.querySelector('.project-card__visual');
     const info = card.querySelector('.project-card__info');
     const art = visual.querySelector('.system-shot') || visual.querySelector('.system-demo') || visual.querySelector('.project-screenshot-link img') || visual.firstElementChild;
 
     const projectTl = gsap.timeline({
-      scrollTrigger: { trigger: card, start: 'top 78%', once: true }
+      scrollTrigger: { trigger: card, start: 'top 82%', once: true }
     });
 
     projectTl
-      .from(visual, {
-        clipPath: index % 2 === 0 ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)',
-        duration: 1.05,
-        ease: 'power4.inOut'
+      .from(info.children, {
+        y: 22,
+        opacity: 0,
+        duration: .72,
+        stagger: .09,
+        ease: 'power3.out'
       })
-      .from(art, { scale: visual.classList.contains('project-card__visual--screenshot') ? 1.035 : 1.13, opacity: .35, duration: 1.25, ease: 'power3.out' }, '-=.55')
-      .from(info.children, { y: 25, opacity: 0, duration: .7, stagger: .1 }, '-=.72');
+      .from(visual, {
+        clipPath: 'inset(0 0 100% 0)',
+        duration: 1.0,
+        ease: 'power4.inOut'
+      }, '-=.22')
+      .from(art, {
+        scale: visual.classList.contains('project-card__visual--screenshot') ? 1.025 : 1.1,
+        opacity: .45,
+        duration: 1.05,
+        ease: 'power3.out'
+      }, '-=.58');
 
     if (!isMobileViewport) {
       gsap.to(art, {
