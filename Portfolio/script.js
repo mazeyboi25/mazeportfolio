@@ -368,11 +368,13 @@ function initPrincipleKinetic() {
 function initWorkShowcaseMotion() {
   if (!hasGSAP || reduceMotion) return;
 
-  gsap.registerPlugin(ScrollTrigger);
-
   const flagshipCards = [...document.querySelectorAll('.project-list .project-card')];
+  const smallCards = [...document.querySelectorAll('.small-builds__grid .small-project')];
 
-  flagshipCards.forEach((card, index) => {
+  const playFlagship = (card, index) => {
+    if (card.dataset.workAnimated === 'true') return;
+    card.dataset.workAnimated = 'true';
+
     const info = card.querySelector('.project-card__info');
     const visual = card.querySelector('.project-card__visual');
     const screen = visual?.querySelector('.project-screenshot-link');
@@ -381,7 +383,10 @@ function initWorkShowcaseMotion() {
     const badge = visual?.querySelector('.project-live-badge');
     const link = info?.querySelector('.project-link');
 
-    if (!info || !visual || !screen) return;
+    if (!info || !visual || !screen) {
+      card.classList.add('is-work-live');
+      return;
+    }
 
     card.classList.add('has-work-motion');
 
@@ -403,146 +408,98 @@ function initWorkShowcaseMotion() {
 
     const wipe = motionLayer.querySelector('.project-motion-wipe');
     const scan = motionLayer.querySelector('.project-motion-scan');
-    const corners = motionLayer.querySelectorAll('.project-motion-corner');
+    const corners = [...motionLayer.querySelectorAll('.project-motion-corner')];
     const infoChildren = [...info.children];
     const direction = index % 2 === 0 ? 1 : -1;
 
-    gsap.set(infoChildren, {
-      opacity: 0,
-      y: isMobileViewport ? 24 : 36
-    });
-
+    gsap.set(infoChildren, { opacity: 0, y: isMobileViewport ? 18 : 24 });
     gsap.set(visual, {
       opacity: 0,
-      y: isMobileViewport ? 34 : 0,
-      x: isMobileViewport ? 0 : 74 * direction,
-      scale: isMobileViewport ? .97 : .94,
-      rotateY: isMobileViewport ? 0 : -4.5 * direction,
-      transformPerspective: 1500,
-      transformOrigin: '50% 50%'
+      x: isMobileViewport ? 0 : 34 * direction,
+      y: isMobileViewport ? 24 : 0,
+      scale: .985
     });
+    gsap.set(screen, { y: 8, scale: .992 });
 
-    gsap.set(screen, {
-      scale: .975,
-      y: isMobileViewport ? 14 : 18
-    });
-
-    if (browserBar) gsap.set(browserBar, { opacity: 0, y: -9 });
-    if (number) gsap.set(number, { opacity: 0, scale: .55, rotation: -10 * direction });
-    if (badge) gsap.set(badge, { opacity: 0, y: 10, scale: .92 });
+    if (browserBar) gsap.set(browserBar, { opacity: 0, y: -6 });
+    if (number) gsap.set(number, { opacity: 0, scale: .8 });
+    if (badge) gsap.set(badge, { opacity: 0, y: 7 });
     if (link) gsap.set(link, { '--project-link-progress': 0 });
-    gsap.set(corners, { opacity: 0, scale: .45 });
+    gsap.set(corners, { opacity: 0, scale: .8 });
+
     if (wipe) {
       gsap.set(wipe, {
         scaleX: 1,
         transformOrigin: direction > 0 ? '100% 50%' : '0% 50%'
       });
     }
-    if (scan) gsap.set(scan, { xPercent: -165, opacity: 0 });
+
+    if (scan) gsap.set(scan, { xPercent: -170, opacity: 0 });
 
     const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: card,
-        start: isMobileViewport ? 'top 88%' : 'top 80%',
-        once: true
-      },
       defaults: { ease: 'power3.out' },
-      onComplete: () => card.classList.add('is-work-live')
+      onComplete: () => {
+        card.classList.add('is-work-live');
+        gsap.set([...infoChildren, visual, screen], { clearProps: 'willChange' });
+      }
     });
 
     tl
       .to(infoChildren, {
         opacity: 1,
         y: 0,
-        duration: .72,
-        stagger: .095
+        duration: .5,
+        stagger: .055
       })
       .to(visual, {
         opacity: 1,
         x: 0,
         y: 0,
         scale: 1,
-        rotateY: 0,
-        duration: isMobileViewport ? .78 : 1.05,
+        duration: .64,
         ease: 'power4.out'
-      }, '-=.36')
+      }, '-=.25')
       .to(screen, {
-        scale: 1,
         y: 0,
-        duration: .9,
-        ease: 'power4.out'
-      }, '-=.62');
+        scale: 1,
+        duration: .5
+      }, '-=.4');
 
     if (wipe) {
       tl.to(wipe, {
         scaleX: 0,
-        duration: isMobileViewport ? .7 : .92,
+        duration: .58,
         ease: 'power4.inOut'
-      }, '-=.78');
+      }, '-=.48');
     }
 
     tl.to(corners, {
-        opacity: 1,
-        scale: 1,
-        duration: .38,
-        stagger: .055,
-        ease: 'back.out(1.8)'
-      }, '-=.56');
+      opacity: 1,
+      scale: 1,
+      duration: .25,
+      stagger: .025
+    }, '-=.34');
 
-    if (browserBar) {
-      tl.to(browserBar, { opacity: 1, y: 0, duration: .4 }, '-=.48');
-    }
-
-    if (number) {
-      tl.to(number, {
-        opacity: 1,
-        scale: 1,
-        rotation: 0,
-        duration: .45,
-        ease: 'back.out(2)'
-      }, '-=.42');
-    }
-
-    if (badge) {
-      tl.to(badge, { opacity: 1, y: 0, scale: 1, duration: .42 }, '-=.38');
-    }
-
-    if (link) {
-      tl.to(link, { '--project-link-progress': 1, duration: .55 }, '-=.44');
-    }
+    if (browserBar) tl.to(browserBar, { opacity: 1, y: 0, duration: .26 }, '-=.28');
+    if (number) tl.to(number, { opacity: 1, scale: 1, duration: .28 }, '-=.24');
+    if (badge) tl.to(badge, { opacity: 1, y: 0, duration: .28 }, '-=.22');
+    if (link) tl.to(link, { '--project-link-progress': 1, duration: .34 }, '-=.24');
 
     if (scan) {
-      tl.to(scan, {
-        opacity: .82,
-        duration: .08
-      }, '-=.26')
-      .to(scan, {
-        xPercent: 720,
-        opacity: 0,
-        duration: isMobileViewport ? .72 : .92,
-        ease: 'power2.inOut'
-      }, '<');
+      tl.to(scan, { opacity: .58, duration: .04 }, '-=.12')
+        .to(scan, {
+          xPercent: 650,
+          opacity: 0,
+          duration: .52,
+          ease: 'power2.inOut'
+        }, '<');
     }
+  };
 
-    // A very light opposing drift gives the alternating case-study layout
-    // depth without changing its actual size or position in the grid.
-    if (!isMobileViewport) {
-      gsap.to(visual, {
-        yPercent: index % 2 === 0 ? -2.4 : 2.4,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: card,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1.25
-        }
-      });
-    }
-  });
+  const playSmall = (card) => {
+    if (card.dataset.workAnimated === 'true') return;
+    card.dataset.workAnimated = 'true';
 
-  const smallCards = [...document.querySelectorAll('.small-builds__grid .small-project')];
-
-  smallCards.forEach((card, index) => {
     const preview = card.querySelector('.small-project__preview');
     const screen = card.querySelector('.small-project__screen');
     const top = card.querySelector('.small-project__top');
@@ -550,9 +507,11 @@ function initWorkShowcaseMotion() {
     const content = card.querySelector('.small-project__content');
     const tags = [...card.querySelectorAll('.small-project__tags span')];
 
-    if (!preview || !screen || !content) return;
+    if (!preview || !screen || !content) {
+      card.classList.add('is-work-live');
+      return;
+    }
 
-    // The generic .reveal state is intentionally bypassed for these cards.
     gsap.set(card, { opacity: 1, y: 0 });
     card.classList.add('has-work-motion');
 
@@ -564,37 +523,28 @@ function initWorkShowcaseMotion() {
       preview.appendChild(scan);
     }
 
+    const contentParts = [...content.children].filter(
+      el => !el.classList.contains('small-project__tags')
+    );
+
     gsap.set(preview, {
       opacity: 0,
-      y: isMobileViewport ? 34 : 58,
-      scale: isMobileViewport ? .975 : .94,
-      rotateX: isMobileViewport ? 0 : 7,
-      transformPerspective: 1200,
-      transformOrigin: '50% 100%'
-    });
-
-    gsap.set(screen, {
-      opacity: .45,
+      y: isMobileViewport ? 22 : 34,
       scale: .985
     });
-
-    if (top) gsap.set(top, { opacity: 0, y: -12 });
-    if (visit) gsap.set(visit, { opacity: 0, y: 10 });
-
-    const contentParts = [...content.children].filter(el => !el.classList.contains('small-project__tags'));
-    gsap.set(contentParts, { opacity: 0, y: 24 });
-    gsap.set(tags, { opacity: 0, y: 10, scale: .96 });
-    gsap.set(scan, { xPercent: -230, opacity: 0 });
+    gsap.set(screen, { opacity: .68, scale: .994 });
+    if (top) gsap.set(top, { opacity: 0, y: -7 });
+    if (visit) gsap.set(visit, { opacity: 0, y: 7 });
+    gsap.set(contentParts, { opacity: 0, y: 16 });
+    gsap.set(tags, { opacity: 0, y: 7 });
+    gsap.set(scan, { xPercent: -210, opacity: 0 });
 
     const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: card,
-        start: isMobileViewport ? 'top 90%' : 'top 84%',
-        once: true
-      },
       defaults: { ease: 'power3.out' },
-      delay: !isMobileViewport && index % 2 ? .08 : 0,
-      onComplete: () => card.classList.add('is-work-live')
+      onComplete: () => {
+        card.classList.add('is-work-live');
+        gsap.set([preview, screen, ...contentParts, ...tags], { clearProps: 'willChange' });
+      }
     });
 
     tl
@@ -602,50 +552,69 @@ function initWorkShowcaseMotion() {
         opacity: 1,
         y: 0,
         scale: 1,
-        rotateX: 0,
-        duration: isMobileViewport ? .72 : .9,
+        duration: .56,
         ease: 'power4.out'
       })
       .to(screen, {
         opacity: 1,
         scale: 1,
-        duration: .72,
-        ease: 'power3.out'
-      }, '-=.5');
+        duration: .4
+      }, '-=.34');
 
-    if (top) tl.to(top, { opacity: 1, y: 0, duration: .38 }, '-=.47');
-    if (visit) tl.to(visit, { opacity: 1, y: 0, duration: .38 }, '-=.38');
+    if (top) tl.to(top, { opacity: 1, y: 0, duration: .24 }, '-=.28');
+    if (visit) tl.to(visit, { opacity: 1, y: 0, duration: .24 }, '-=.24');
 
     tl
-      .to(scan, { opacity: .72, duration: .06 }, '-=.34')
+      .to(scan, { opacity: .46, duration: .04 }, '-=.2')
       .to(scan, {
-        xPercent: 680,
+        xPercent: 610,
         opacity: 0,
-        duration: isMobileViewport ? .68 : .82,
+        duration: .48,
         ease: 'power2.inOut'
       }, '<')
       .to(contentParts, {
         opacity: 1,
         y: 0,
-        duration: .56,
-        stagger: .07
-      }, '-=.48')
+        duration: .38,
+        stagger: .045
+      }, '-=.34')
       .to(tags, {
         opacity: 1,
         y: 0,
-        scale: 1,
-        duration: .34,
-        stagger: .045,
-        ease: 'back.out(1.6)'
-      }, '-=.28');
-  });
+        duration: .26,
+        stagger: .025
+      }, '-=.18');
+  };
 
-  // The page boots behind a fixed loader. Refresh once the browser has had a
-  // frame to apply all project dimensions so ScrollTrigger never keeps a card
-  // hidden because of stale measurements.
-  requestAnimationFrame(() => {
-    ScrollTrigger.refresh();
-  });
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+
+          const card = entry.target;
+          const flagshipIndex = flagshipCards.indexOf(card);
+
+          if (flagshipIndex >= 0) {
+            playFlagship(card, flagshipIndex);
+          } else {
+            playSmall(card);
+          }
+
+          observer.unobserve(card);
+        });
+      },
+      {
+        threshold: isMobileViewport ? .08 : .12,
+        rootMargin: '8% 0px -6% 0px'
+      }
+    );
+
+    [...flagshipCards, ...smallCards].forEach(card => observer.observe(card));
+  } else {
+    flagshipCards.forEach(playFlagship);
+    smallCards.forEach(playSmall);
+  }
 }
 
 function revealWorkShowcaseFallback() {
@@ -677,22 +646,46 @@ function initPointerLayer() {
 
   const dot = document.querySelector('.cursor-dot');
   const ring = document.querySelector('.cursor-ring');
-  let mouseX = innerWidth / 2, mouseY = innerHeight / 2;
-  let ringX = mouseX, ringY = mouseY;
+  if (!dot || !ring) return;
 
-  window.addEventListener('mousemove', e => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
-    dot.style.transform = `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
-  });
+  let mouseX = innerWidth / 2;
+  let mouseY = innerHeight / 2;
+  let ringX = mouseX;
+  let ringY = mouseY;
+  let cursorFrame = 0;
 
   const draw = () => {
-    ringX += (mouseX - ringX) * .16;
-    ringY += (mouseY - ringY) * .16;
-    ring.style.transform = `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
-    requestAnimationFrame(draw);
+    const dx = mouseX - ringX;
+    const dy = mouseY - ringY;
+
+    ringX += dx * .2;
+    ringY += dy * .2;
+
+    ring.style.transform =
+      `translate(${ringX}px, ${ringY}px) translate(-50%, -50%)`;
+
+    if (Math.abs(dx) > .12 || Math.abs(dy) > .12) {
+      cursorFrame = requestAnimationFrame(draw);
+    } else {
+      cursorFrame = 0;
+    }
   };
-  draw();
+
+  window.addEventListener(
+    'mousemove',
+    (event) => {
+      mouseX = event.clientX;
+      mouseY = event.clientY;
+
+      dot.style.transform =
+        `translate(${mouseX}px, ${mouseY}px) translate(-50%, -50%)`;
+
+      if (!cursorFrame) {
+        cursorFrame = requestAnimationFrame(draw);
+      }
+    },
+    { passive: true }
+  );
 
   document.querySelectorAll('a, button, .project-card__visual').forEach(el => {
     el.addEventListener('mouseenter', () => ring.classList.add('is-hovering'));
@@ -700,13 +693,29 @@ function initPointerLayer() {
   });
 
   document.querySelectorAll('.magnetic').forEach(el => {
-    el.addEventListener('mousemove', e => {
+    el.addEventListener('mousemove', event => {
       const rect = el.getBoundingClientRect();
-      const x = e.clientX - rect.left - rect.width / 2;
-      const y = e.clientY - rect.top - rect.height / 2;
-      gsap.to(el, { x: x * .16, y: y * .22, duration: .35, ease: 'power2.out' });
+      const x = event.clientX - rect.left - rect.width / 2;
+      const y = event.clientY - rect.top - rect.height / 2;
+
+      gsap.to(el, {
+        x: x * .13,
+        y: y * .17,
+        duration: .24,
+        ease: 'power2.out',
+        overwrite: 'auto'
+      });
     });
-    el.addEventListener('mouseleave', () => gsap.to(el, { x: 0, y: 0, duration: .55, ease: 'elastic.out(1, .45)' }));
+
+    el.addEventListener('mouseleave', () => {
+      gsap.to(el, {
+        x: 0,
+        y: 0,
+        duration: .38,
+        ease: 'power3.out',
+        overwrite: 'auto'
+      });
+    });
   });
 }
 
@@ -990,10 +999,8 @@ async function bootPortfolio() {
     initPrincipleKinetic();
     initScrollSequences();
     initWorkShowcaseMotion();
-    initProjectAccumulation();
     initPointerLayer();
     initHeroMapPointer();
-    initProjectTilt();
     runIntroSequence();
   } catch (error) {
     console.error('Portfolio animation fallback:', error);
@@ -1642,149 +1649,27 @@ const experimentCards =
     "[data-experiment-card]"
   );
 
-
+/*
+ * Small Builds now use CSS-only hover feedback.
+ * This avoids layout reads and transform writes on every pointermove.
+ */
 experimentCards.forEach((card) => {
-
   const preview =
     card.querySelector(
       ".small-project__preview"
     );
 
-
   if (!preview) return;
 
-
-  /*
-   * These effects only run
-   * on devices with a real mouse.
-   */
-
-  const finePointer =
-    window.matchMedia(
-      "(pointer: fine)"
-    ).matches;
-
-
-  const reduceMotion =
-    window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-
-
-  if (
-    !finePointer ||
-    reduceMotion
-  ) {
-    return;
-  }
-
-
-  preview.addEventListener(
-    "pointermove",
-    (event) => {
-
-      const rect =
-        preview.getBoundingClientRect();
-
-
-      const x =
-        event.clientX -
-        rect.left;
-
-
-      const y =
-        event.clientY -
-        rect.top;
-
-
-      /*
-       * Move light toward
-       * the mouse position.
-       */
-
-      const pointerX =
-        (
-          x /
-          rect.width
-        ) *
-        100;
-
-
-      const pointerY =
-        (
-          y /
-          rect.height
-        ) *
-        100;
-
-
-      preview.style.setProperty(
-        "--pointer-x",
-        `${pointerX}%`
-      );
-
-
-      preview.style.setProperty(
-        "--pointer-y",
-        `${pointerY}%`
-      );
-
-
-      /*
-       * Restrained tilt.
-       *
-       * Intentionally kept low
-       * so the real screenshots
-       * remain easy to read.
-       */
-
-      const rotateY =
-        (
-          (
-            x /
-            rect.width
-          ) -
-          .5
-        ) *
-        3.5;
-
-
-      const rotateX =
-        (
-          .5 -
-          (
-            y /
-            rect.height
-          )
-        ) *
-        3.5;
-
-
-      preview.style.transform = `
-        perspective(1200px)
-        rotateX(${rotateX}deg)
-        rotateY(${rotateY}deg)
-        translateY(-3px)
-      `;
-
-    }
+  preview.style.setProperty(
+    "--pointer-x",
+    "50%"
   );
 
-
-  preview.addEventListener(
-    "pointerleave",
-    () => {
-
-      preview.style.transform = `
-        perspective(1200px)
-        rotateX(0deg)
-        rotateY(0deg)
-        translateY(0)
-      `;
-
-    }
+  preview.style.setProperty(
+    "--pointer-y",
+    "50%"
   );
-
 });
 
 /* ============================================================

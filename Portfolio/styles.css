@@ -7276,9 +7276,46 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   border: 1px solid transparent;
   background:
     linear-gradient(135deg, rgba(183,168,255,.28), transparent 20%, transparent 76%, rgba(83,214,255,.16)) border-box;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) padding-box,
-    linear-gradient(#fff 0 0);
+  .small-project.has-work-motion .small-project__preview::after {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(183,168,255,.28),
+      transparent 38%
+    ) top left / 100% 1px no-repeat,
+
+    linear-gradient(
+      180deg,
+      rgba(183,168,255,.22),
+      transparent 42%
+    ) top left / 1px 100% no-repeat,
+
+    linear-gradient(
+      270deg,
+      rgba(83,214,255,.16),
+      transparent 38%
+    ) bottom right / 100% 1px no-repeat,
+
+    linear-gradient(
+      0deg,
+      rgba(83,214,255,.14),
+      transparent 42%
+    ) bottom right / 1px 100% no-repeat;
+
+  opacity: 0;
+  transition: opacity .45s ease;
+}
+
+.small-project.is-work-live .small-project__preview::after {
+  opacity: .42;
+}
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
@@ -7338,4 +7375,98 @@ html.js .system-demo:not(.is-active) .admin-landing-side { opacity: 1 !important
   .project-card.is-work-live .project-screenshot-link::before { animation: none !important; }
   .project-card.has-work-motion .project-card__info::before,
   .small-project.has-work-motion .small-project__meta::after { transform: scaleX(1) !important; }
+}
+
+/* ============================================================
+   WORK MOTION V6 — PERFORMANCE PASS
+   Keeps the entrance choreography while removing persistent
+   GPU-heavy motion, blur, and scroll-scrub work after reveal.
+   ============================================================ */
+
+/* The reveal still uses transform/opacity, but layers are not kept promoted. */
+.project-card.has-work-motion .project-screenshot-link,
+.small-project.has-work-motion .small-project__preview,
+.small-project.has-work-motion .small-project__screen,
+.small-project__screen img {
+  will-change: auto !important;
+}
+
+/* Remove the continuous animations added to the work sections. */
+.project-card.is-work-live .project-live-badge b,
+.project-card.is-work-live .project-screenshot-link::before,
+.small-project.is-work-live .small-project__status i {
+  animation: none !important;
+}
+
+/* Keep the same hover language with much cheaper paint work. */
+.project-card.has-work-motion .project-card__visual,
+.small-project.has-work-motion .small-project__preview {
+  transition:
+    border-color .28s ease,
+    box-shadow .32s ease !important;
+}
+
+.project-card.has-work-motion:hover .project-card__visual {
+  box-shadow:
+    0 18px 42px rgba(0, 0, 0, .18),
+    0 0 0 1px rgba(126, 98, 255, .03) !important;
+}
+
+.small-project.has-work-motion:hover .small-project__preview,
+.small-project__preview:hover {
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, .22),
+    0 0 0 1px rgba(111, 74, 255, .035) !important;
+}
+
+/* Avoid expensive dynamic filters on the screenshot images. */
+.small-project__screen img,
+.small-project__preview:hover .small-project__screen img {
+  filter: none !important;
+}
+
+.small-project__preview:hover .small-project__screen img {
+  transform: scale(1.012) !important;
+}
+
+/* Blur-behind chips are costly while cards are moving; use opaque fills instead. */
+.small-project__number,
+.small-project__status,
+.small-project__visit {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: rgba(8, 7, 18, .9) !important;
+}
+
+/* Corners stay visible but no longer run drop-shadow filters on hover. */
+.project-motion-corner,
+.project-card.is-work-live:hover .project-motion-corner {
+  filter: none !important;
+}
+
+/* The framing glow remains, but is static and cheaper to paint. */
+.small-project.has-work-motion .small-project__preview::after,
+.small-project.is-work-live .small-project__preview::after,
+.small-project.has-work-motion:hover .small-project__preview::after {
+  opacity: .34;
+}
+
+/* Disable cursor-following glow calculations; preserve a centered hover glow. */
+.small-project__preview::before,
+.small-project__glow {
+  background-position: center;
+}
+
+/* Phones/tablets get the same one-time entrance with even cheaper surfaces. */
+@media (max-width: 820px) {
+  .project-card.has-work-motion:hover .project-card__visual,
+  .small-project.has-work-motion:hover .small-project__preview,
+  .small-project__preview:hover {
+    box-shadow: none !important;
+  }
+
+  .project-motion-scan,
+  .small-project__scan-beam {
+    box-shadow: none !important;
+  }
 }
