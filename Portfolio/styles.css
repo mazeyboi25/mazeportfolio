@@ -105,7 +105,22 @@ svg { display: block; }
   transform-origin: left;
 }
 .brand { justify-self: start; display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: -.03em; }
-.brand__mark { display: grid; place-items: center; width: 31px; height: 31px; border: 1px solid rgba(255,255,255,.3); border-radius: 50%; font-size: 12px; }
+.brand__mark { 
+  display: grid; 
+  place-items: center; 
+  width: 31px; 
+  height: 31px; 
+  border: 1px solid rgba(255,255,255,.3); 
+  border-radius: 50%; 
+  font-size: 12px; }
+
+.brand__mark img {
+  width: 21px;
+  height: 21px;
+  object-fit: contain;
+  display: block;
+}
+
 .brand__name { font-size: 13px; }
 .desktop-nav {
   display: flex;
